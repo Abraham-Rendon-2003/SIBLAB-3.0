@@ -121,67 +121,7 @@ export default function IndexScreen() {
                 <Text>Docente: Fake teacher</Text>
                 <Text>Hora de inicio: Fake time</Text>
                 <Text>Hora final: Fake time</Text>
-            </View>
-        </View><View style={styles.card}>
-            <View>
-                <Icon type="material-comunity" name="laptop" size={130} style={{marginLeft: 5}}/>
-            </View>
-            <View style={styles.info}>
-                <Text>Fake computer</Text>
-                <Text>Docencia: Fake ubication</Text>
-                <Text>Laboratorio: Fake laboratory</Text>
-                <Text>Docente: Fake teacher</Text>
-                <Text>Hora de inicio: Fake time</Text>
-                <Text>Hora final: Fake time</Text>
-            </View>
-        </View><View style={styles.card}>
-            <View>
-                <Icon type="material-comunity" name="laptop" size={130} style={{marginLeft: 5}}/>
-            </View>
-            <View style={styles.info}>
-                <Text>Fake computer</Text>
-                <Text>Docencia: Fake ubication</Text>
-                <Text>Laboratorio: Fake laboratory</Text>
-                <Text>Docente: Fake teacher</Text>
-                <Text>Hora de inicio: Fake time</Text>
-                <Text>Hora final: Fake time</Text>
-            </View>
-        </View><View style={styles.card}>
-            <View>
-                <Icon type="material-comunity" name="laptop" size={130} style={{marginLeft: 5}}/>
-            </View>
-            <View style={styles.info}>
-                <Text>Fake computer</Text>
-                <Text>Docencia: Fake ubication</Text>
-                <Text>Laboratorio: Fake laboratory</Text>
-                <Text>Docente: Fake teacher</Text>
-                <Text>Hora de inicio: Fake time</Text>
-                <Text>Hora final: Fake time</Text>
-            </View>
-        </View><View style={styles.card}>
-            <View>
-                <Icon type="material-comunity" name="laptop" size={130} style={{marginLeft: 5}}/>
-            </View>
-            <View style={styles.info}>
-                <Text>Fake computer</Text>
-                <Text>Docencia: Fake ubication</Text>
-                <Text>Laboratorio: Fake laboratory</Text>
-                <Text>Docente: Fake teacher</Text>
-                <Text>Hora de inicio: Fake time</Text>
-                <Text>Hora final: Fake time</Text>
-            </View>
-        </View><View style={styles.card}>
-            <View>
-                <Icon type="material-comunity" name="laptop" size={130} style={{marginLeft: 5}}/>
-            </View>
-            <View style={styles.info}>
-                <Text>Fake computer</Text>
-                <Text>Docencia: Fake ubication</Text>
-                <Text>Laboratorio: Fake laboratory</Text>
-                <Text>Docente: Fake teacher</Text>
-                <Text>Hora de inicio: Fake time</Text>
-                <Text>Hora final: Fake time</Text>
-            </View>
+            </View>        
         </View>
       </View>
     </ScrollView>

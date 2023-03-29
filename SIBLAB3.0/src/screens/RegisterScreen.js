@@ -29,9 +29,6 @@ export default function RegisterScreen() {
   const navigation = useNavigation();
   const [pass, setPass] = useState(false);
   const [confirm, setConfirm] = useState(false);
-  const image = {
-    uri: "https://p4.wallpaperbetter.com/wallpaper/141/158/403/simple-minimalism-gradient-wallpaper-preview.jpg",
-  };
 
   const formik = useFormik({
     initialValues: {
@@ -59,7 +56,7 @@ export default function RegisterScreen() {
   const onSubmite = async (values) => {
     try {
       const response = await axios.post(
-        "http://192.168.0.103:8080/api-siblab/login/",
+        "http://192.168.0.103:8080/api-siblab/user/",
         {
           email: values.email,
           password: values.password,
@@ -78,7 +75,7 @@ export default function RegisterScreen() {
       
       if (response.status === 201) {
         alert("Cuenta creada exitosamente");
-        navigation.navigate("historial");
+        navigation.navigate("navigation");
       } else {
         alert("Error al crear la cuenta");
       }
