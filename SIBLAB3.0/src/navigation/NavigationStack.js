@@ -15,9 +15,9 @@ export default function IndexStack(){
 
             })}>
             {/* <Stack.Screen name="historial" component={IndexScreen} options={{title:"historial"}}/> */}
-            {/* <Stack.Screen name="personal" component={PersonalScreen} options={{title:"personal"}}/> */}
-            <Stack.Screen name="scanner" component={QRScanner} options={{title:"scanner"}}/>
-            {/* <Stack.Screen name="report" component={ReportScreen} options={{title: 'report'}}/> */}
+            <Stack.Screen name="personal" component={PersonalScreen} options={{title:"personal"}}/>
+            {/* <Stack.Screen name="scanner" component={QRScanner} options={{title:"scanner"}}/>
+            <Stack.Screen name="report" component={ReportScreen} options={{title: 'report'}}/> */}
         </Stack.Navigator>
     )
 }

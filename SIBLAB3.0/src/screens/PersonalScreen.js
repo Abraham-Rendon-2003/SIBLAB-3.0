@@ -3,9 +3,10 @@ import { StyleSheet, Text, View, TextInput, ImageBackground } from "react-native
 import axios from "axios";
 
 
-export default function PersonalScreen() {
+export default function PersonalScreen(props) {
 //   const route = useRoute();
 // const userId = route.params?.userId;
+const userId = props;
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {

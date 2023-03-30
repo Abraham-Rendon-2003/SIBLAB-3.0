@@ -24,7 +24,7 @@ export default function QRScannerI(props) {
     setText(data);
     console.log('Type: ' + type + '\nData: ' + data);
 
-     navigation.navigate('ReportStack', {screen: 'reportS', params: {data: data}});
+     navigation.navigate('report', {data: data});
   };
 
   if (hasPermission === null) {

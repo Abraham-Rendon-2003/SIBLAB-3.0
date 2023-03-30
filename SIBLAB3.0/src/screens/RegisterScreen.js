@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Input, Button } from "react-native-elements";
 import { useFormik } from "formik";
+import { Picker } from "@react-native-picker/picker";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
@@ -29,6 +30,8 @@ export default function RegisterScreen() {
   const navigation = useNavigation();
   const [pass, setPass] = useState(false);
   const [confirm, setConfirm] = useState(false);
+  const [groups, setGroups] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
 
   const formik = useFormik({
     initialValues: {
@@ -53,6 +56,19 @@ export default function RegisterScreen() {
   const showConfirm = () => {
     setConfirm(!confirm);
   };
+  const fetchGroups = async () => {
+    try {
+      const response = await axios.get('http://192.168.0.103:8080/api-siblab/classroom/');
+      setGroups(response.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
   const onSubmite = async (values) => {
     try {
       const response = await axios.post(
@@ -145,6 +161,18 @@ export default function RegisterScreen() {
           onPress: () => showConfirm(),
         }}
       />
+      <Text>Seleccione su grupo:</Text>
+      <Picker
+        selectedValue={selectedGroup}
+        onValueChange={(itemValue, itemIndex) => setSelectedGroup(itemValue)}
+        style={{ height: 50, width: 150 }}
+      >
+        <Picker.Item label="Seleccione un grupo" value={null} />
+        {groups.map(group => (
+          <Picker.Item key={group.id} label={group.name} value={group.id} />
+        ))}
+      </Picker>
+
       <Button
         title="Registrar"
         onPress={formik.handleSubmit}

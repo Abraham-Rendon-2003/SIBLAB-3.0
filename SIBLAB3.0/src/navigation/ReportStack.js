@@ -6,10 +6,10 @@ const Stack = createNativeStackNavigator()
 
 export default function ReportStack(){
     return(
-        <Stack.Navigator initialRouteName="index" screenOptions={({route}) => ({
+        <Stack.Navigator initialRouteName="report" screenOptions={({route}) => ({
             headerShown: false,
         })}>
-            <Stack.Screen name="reportS" component={ReportScreen} options={{title:'Report'}}/>
+            <Stack.Screen name="report" component={ReportScreen} options={{title:'Report'}}/>
         </Stack.Navigator>
     )
 }
