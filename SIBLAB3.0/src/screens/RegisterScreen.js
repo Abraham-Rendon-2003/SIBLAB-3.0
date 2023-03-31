@@ -23,6 +23,7 @@ const SignupSchema = Yup.object({
   name: Yup.string().required("Campo obligatorio"),
   surname: Yup.string().required("Campo obligatorio"),
   code: Yup.string().required("Campo obligatorio"),
+  classroom: Yup.string().required("Campo obligatorio"),
 });
 
 export default function RegisterScreen() {
@@ -41,6 +42,8 @@ export default function RegisterScreen() {
       name: "",
       surname: "",
       code: "",
+      id_classroom: "",
+
     },
     validationSchema: SignupSchema,
     validateOnChange: false,
@@ -80,6 +83,7 @@ export default function RegisterScreen() {
           surname: values.surname,
           code: values.code,
           role: "alumno",
+          id_classroom: values.id_classroom,
           Withcredentials:true,
         },
         {
@@ -163,8 +167,9 @@ export default function RegisterScreen() {
       />
       <Text>Seleccione su grupo:</Text>
       <Picker
-        selectedValue={selectedGroup}
-        onValueChange={(itemValue, itemIndex) => setSelectedGroup(itemValue)}
+        selectedValue={formik.values.id_classroom}
+        onValueChange={(itemValue, itemIndex) => formik.setFieldValue("id_classroom", itemValue)}
+        errorMessage={formik.errors.id_classroom}
         style={{ height: 50, width: 150 }}
       >
         <Picker.Item label="Seleccione un grupo" value={null} />

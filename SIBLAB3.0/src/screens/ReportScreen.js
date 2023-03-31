@@ -1,28 +1,63 @@
 import React, { useEffect, useState } from "react"
 import { StyleSheet, Text, View, TextInput } from 'react-native'
 import { Picker } from '@react-native-picker/picker';
+import { useFormik } from "formik";
 import { Button, Input } from "react-native-elements";
 import axios from 'axios';
 
 export default function ReportScreen() {
     const [selectedValue, setSelectedValue] = useState("");
     const [reporteValue, setReporteValue] = useState("");
-
+    const [defectValue, setDefectValue] = useState("");
+    const [profesorValue, setProfesorValue] = useState("");
+    const [marcaValue, setMarcaValue] = useState("");
+    const [procesadorValue, setProcesadorValue] = useState("");
+    const [teachers, setTeachers] = useState([]);
+    const formik = useFormik({
+        initialValues: {
+            reporte: "",
+            profesor: "",
+            defect: "",
+            marca: "",
+            procesador: "",
+            Horafinal: "",
+        },
+        handleSendReport: (formValue) => {
+          console.log(formValue)
+          handleSendReport(formValue);
+        }
+      });
     const handleSendReport = async () => {
         try {
-            const response = await axios.post('http://localhost:8080/api-siblab/report', {
+            const response = await axios.post('http://192.168.0.103:8080/api-siblab/report', {
                 profesor: selectedValue,
-                reporte: reporteValue
-            });
-            console.log(response);
-            // Aquí puedes agregar lógica para mostrar un mensaje de éxito o redirigir a otra pantalla
+                reporte: reporteValue,
+                withCredentials: true,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          
+          if (response.status === 201) {
+            alert("Cuenta creada exitosamente");
+            navigation.navigate("navigation");
+          } else {
+            alert("Error al crear la cuenta");
+          }
         } catch (error) {
-            console.error(error);
-            // Aquí puedes agregar lógica para mostrar un mensaje de error
+          console.error("Error:", error);
+          alert("Error al crear la cuenta");
+      
+          if (error.response && error.response.data) {
+            console.log("Error en los datos:", error.response.data);
+          }
         }
-    }
+      };
 
-    const [teachers, setTeachers] = useState([]);
+    
 
    
   useEffect(() => {
@@ -66,18 +101,31 @@ export default function ReportScreen() {
                 <Text style={styles.texto}>Ubicacion</Text>
             </View>
             <View style={styles.Horario}>
-                <Text style={styles.texto}>Horario</Text>
+                <Text style={styles.texto}>Horario Inicio</Text>
             </View>
             <View style={styles.Horario2}>
                 <Text style={styles.texto}>Horario</Text>
+            </View>
+            <View style={styles.HorarioF}>
+                <Text style={styles.texto}>Horario Final</Text>
+            </View>
+            <View style={styles.Horario2F}>
+                <TextInput 
+                style={styles.texto} 
+                placeholder="Horario Final" 
+                onChangeText={(text)=>formik.setHorarioValue("Horafinal",text)}
+                errorMessage={formik.errors.Horafinal}
+                value={horarioValue}
+                />
             </View>
             <View style={styles.docente}>
                 <Text style={styles.texto}>Docente</Text>
             </View>
                 <Picker
-                    selectedValue={selectedValue}
+                    selectedValue={formik.values.profesor}
                     style={styles.picker}
-                    onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}
+                    onValueChange={(itemValue, itemIndex) => formik.setFieldValue("profesor",itemValue)}
+                    errorMessage={formik.errors.profesor}
                     prompt="Selecciona un profesor"
                 >
                     {teachers.map((teacher) => {
@@ -105,7 +153,8 @@ export default function ReportScreen() {
                     <Button
                         title="Agregar Reporte"
                         buttonStyle={{ backgroundColor: 'transparent' }}
-                        onPress={handleSendReport}
+                        onPress={formik.handleSubmit}
+                        loading={formik.isSubmitting}
                     />
                 </View>
             </View>
@@ -152,8 +201,8 @@ const styles = StyleSheet.create({
         width: 150,
         height: 50,
         right: 30,
-        top: 440,
-        backgroundColor: 'white',
+        top: 490,
+        backgroundColor: '#D9D9D9',
         borderRadius: 10,
         position: 'absolute',
     },
@@ -200,9 +249,9 @@ const styles = StyleSheet.create({
     docente: {
         width: 150,
         height: 50,
-        top: 440,
+        top: 490,
         left: 30,
-        backgroundColor: '#D9D9D9',
+        backgroundColor: 'white',
         position: 'absolute',
         justifyContent: 'center',
         alignItems: 'center',
@@ -244,6 +293,26 @@ const styles = StyleSheet.create({
         top: 390,
         right: 30,
         backgroundColor: '#D9D9D9',
+        position: 'absolute',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    HorarioF: {
+        width: 150,
+        height: 50,
+        top: 440,
+        left: 30,
+        backgroundColor: '#D9D9D9',
+        position: 'absolute',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    Horario2F: {
+        width: 150,
+        height: 50,
+        top: 440,
+        right: 30,
+        backgroundColor: 'white',
         position: 'absolute',
         justifyContent: 'center',
         alignItems: 'center',
