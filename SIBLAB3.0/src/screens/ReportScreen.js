@@ -13,6 +13,8 @@ export default function ReportScreen() {
     const [marcaValue, setMarcaValue] = useState("");
     const [procesadorValue, setProcesadorValue] = useState("");
     const [teachers, setTeachers] = useState([]);
+    const [machineData, setMachineData] = useState({});
+
     const formik = useFormik({
         initialValues: {
             reporte: "",
@@ -23,108 +25,132 @@ export default function ReportScreen() {
             Horafinal: "",
         },
         handleSendReport: (formValue) => {
-          console.log(formValue)
-          handleSendReport(formValue);
+            console.log(formValue)
+            handleSendReport(formValue);
         }
-      });
+    });
     const handleSendReport = async () => {
+        const idEscaneado = obtenerIdEscaneado();
+        const maquina = machines.find((m) => m.id === idEscaneado);
+
+        if (!maquina) {
+            alert("No se encontró una máquina con el ID escaneado");
+            return;
+        }
+
         try {
-            const response = await axios.post('http://192.168.0.103:8080/api-siblab/report', {
+            const response = await axios.post("http://192.168.0.103:8080/api-siblab/report", {
                 profesor: selectedValue,
                 reporte: reporteValue,
+                marca: maquina.marca,
+                procesador: maquina.procesador,
+                ubicacion: maquina.ubicacion,
                 withCredentials: true,
             },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+            if (response.status === 201) {
+                alert("Reporte enviado exitosamente");
+                navigation.navigate("navigation");
+            } else {
+                alert("Error al enviar el reporte");
             }
-          );
-          
-          if (response.status === 201) {
-            alert("Cuenta creada exitosamente");
-            navigation.navigate("navigation");
-          } else {
-            alert("Error al crear la cuenta");
-          }
         } catch (error) {
-          console.error("Error:", error);
-          alert("Error al crear la cuenta");
-      
-          if (error.response && error.response.data) {
-            console.log("Error en los datos:", error.response.data);
-          }
+            console.error("Error:", error);
+            alert("Error al enviar el reporte");
+
+            if (error.response && error.response.data) {
+                console.log("Error en los datos:", error.response.data);
+            }
         }
-      };
-
-    
-
-   
-  useEffect(() => {
-    const selectTeacher = async () => {
-      try {
-        const response = await axios.get('http://192.168.0.103:8080/api-siblab/user/', {
-          withCredentials: true,
-        });
-        const docenteFiltro = response.data.data;
-        const filterTeacter = docenteFiltro.filter(docente => docente.role === 'Teacher');
-        setTeachers(filterTeacter);
-      } catch (error) {
-        console.error(error);
-        // Aquí puedes agregar lógica para mostrar un mensaje de error
-      }
-    }
-    selectTeacher();
-  }, []);
-
-    return (
-        <View style={styles.container}>
+    };
 
 
-            <View style={styles.marca}>
-                <Text style={styles.texto}>Marca</Text>
-            </View>
-            <View style={styles.marca2}>
-                <Text style={styles.texto}>Dell</Text>
-            </View>
-            <View style={styles.Procesador}>
-                <Text style={styles.texto}>Procesador</Text>
-            </View>
-            <View style={styles.Procesador2}>
-                <Text style={styles.texto}>Core ¡7</Text>
-            </View>
+    useEffect(() => {
+        const selectTeacher = async () => {
+            try {
+                const response = await axios.get('http://192.168.0.103:8080/api-siblab/user/', {
+                    withCredentials: true,
+                });
+                const docenteFiltro = response.data.data;
+                const filterTeacter = docenteFiltro.filter(docente => docente.role === 'Teacher');
+                setTeachers(filterTeacter);
+            } catch (error) {
+                console.error(error);
+                // Aquí puedes agregar lógica para mostrar un mensaje de error
+            }
+        }
+        selectTeacher();
+    }, []);
 
-            <View style={styles.Ubicacion}>
+    useEffect(() => {
+        axios
+            .get("http://192.168.0.103:8080/api-siblab/machine")
+            .then((response) => {
+                setMachineData(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, []);
+
+    const machineId = machine.id;
+
+    // Comparar el ID escaneado con el ID de la máquina de la base de datos
+    if (scannedId !== machineId) {
+        // Mostrar un mensaje de error o tomar alguna otra acción
+        console.log('El ID escaneado no coincide con el ID de la máquina recibida');
+    } else {
+        return (
+            <View style={styles.container}>
+
+
+                <View style={styles.container}>
+                    <View style={styles.marca2}>
+                        <Text style={styles.texto}>{machineData.brand}</Text>
+                    </View>
+                    <View style={styles.Procesador2}>
+                        <Text style={styles.texto}>{machineData.cpu}</Text>
+                    </View>
+                    <View style={styles.DiscoDuro}>
+                        <Text style={styles.texto}>{machineData.hard_disk}</Text>
+                    </View>
+                </View>
+                {/* <View style={styles.Ubicacion}>
                 <Text style={styles.texto}>Ubicacion</Text>
-            </View>
-            <View style={styles.Ubicacion2}>
-                <Text style={styles.texto}>Ubicacion</Text>
-            </View>
-            <View style={styles.Horario}>
+            </View> */}
+                <View style={styles.Ubicacion2}>
+                    <Text style={styles.texto}>Ubicacion</Text>
+                </View>
+                {/* <View style={styles.Horario}>
                 <Text style={styles.texto}>Horario Inicio</Text>
-            </View>
-            <View style={styles.Horario2}>
+            </View> */}
+                {/* <View style={styles.Horario2}>
                 <Text style={styles.texto}>Horario</Text>
-            </View>
-            <View style={styles.HorarioF}>
-                <Text style={styles.texto}>Horario Final</Text>
-            </View>
-            <View style={styles.Horario2F}>
-                <TextInput 
-                style={styles.texto} 
-                placeholder="Horario Final" 
-                onChangeText={(text)=>formik.setHorarioValue("Horafinal",text)}
-                errorMessage={formik.errors.Horafinal}
-                value={horarioValue}
-                />
-            </View>
-            <View style={styles.docente}>
-                <Text style={styles.texto}>Docente</Text>
-            </View>
+            </View> */}
+                <View style={styles.HorarioF}>
+                    <Text style={styles.texto}>Horario Final</Text>
+                </View>
+                <View style={styles.Horario2F}>
+                    <TextInput
+                        style={styles.texto}
+                        placeholder="Horario Final"
+                        onChangeText={(text) => formik.setHorarioValue("Horafinal", text)}
+                        errorMessage={formik.errors.Horafinal}
+                        value={horarioValue}
+                    />
+                </View>
+                <View style={styles.docente}>
+                    <Text style={styles.texto}>Docente</Text>
+                </View>
                 <Picker
                     selectedValue={formik.values.profesor}
                     style={styles.picker}
-                    onValueChange={(itemValue, itemIndex) => formik.setFieldValue("profesor",itemValue)}
+                    onValueChange={(itemValue, itemIndex) => formik.setFieldValue("profesor", itemValue)}
                     errorMessage={formik.errors.profesor}
                     prompt="Selecciona un profesor"
                 >
@@ -135,31 +161,32 @@ export default function ReportScreen() {
                     })}
                 </Picker>
 
-            <View style={styles.reporte}>
-                <TextInput
-                    placeholder="Reporte"
-                    editable
-                    multiline
-                    numberOfLines={6}
-                    maxLength={100}
-                    style={{ padding: 10 }}
-                    value={reporteValue}
-                    onChangeText={setReporteValue}
-                />
-            </View>
-
-            <View style={styles.area}>
-                <View style={styles.button}>
-                    <Button
-                        title="Agregar Reporte"
-                        buttonStyle={{ backgroundColor: 'transparent' }}
-                        onPress={formik.handleSubmit}
-                        loading={formik.isSubmitting}
+                <View style={styles.reporte}>
+                    <TextInput
+                        placeholder="Reporte"
+                        editable
+                        multiline
+                        numberOfLines={6}
+                        maxLength={100}
+                        style={{ padding: 10 }}
+                        value={reporteValue}
+                        onChangeText={setReporteValue}
                     />
                 </View>
+
+                <View style={styles.area}>
+                    <View style={styles.button}>
+                        <Button
+                            title="Agregar Reporte"
+                            buttonStyle={{ backgroundColor: 'transparent' }}
+                            onPress={formik.handleSubmit}
+                            loading={formik.isSubmitting}
+                        />
+                    </View>
+                </View>
             </View>
-        </View>
-    )
+        )
+    }
 }
 
 const styles = StyleSheet.create({
