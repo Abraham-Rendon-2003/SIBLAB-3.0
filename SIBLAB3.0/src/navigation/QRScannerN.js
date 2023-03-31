@@ -7,7 +7,7 @@ const Stack = createNativeStackNavigator()
 
 export default function QRScannerN(){
     return(
-        <Stack.Navigator initialRouteName="index" screenOptions={({route}) => ({
+        <Stack.Navigator initialRouteName="scanner" screenOptions={({route}) => ({
             headerShown: false,
         })}>
             <Stack.Screen name="scanner" component={QRScanner} options={{title:'QrScanner'}}/>

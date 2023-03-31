@@ -1,46 +1,86 @@
-import React, {useEffect, useState} from "react"
-import {StyleSheet,Text,View, TextInput} from 'react-native'
+import React, { useEffect, useState } from "react"
+import { StyleSheet, Text, View, TextInput } from 'react-native'
 import { Picker } from '@react-native-picker/picker';
+import { useFormik } from "formik";
 import { Button, Input } from "react-native-elements";
 import axios from 'axios';
 
-export default function ReportScreen(){
+export default function ReportScreen() {
     const [selectedValue, setSelectedValue] = useState("");
     const [reporteValue, setReporteValue] = useState("");
-
+    const [defectValue, setDefectValue] = useState("");
+    const [profesorValue, setProfesorValue] = useState("");
+    const [marcaValue, setMarcaValue] = useState("");
+    const [procesadorValue, setProcesadorValue] = useState("");
+    const [teachers, setTeachers] = useState([]);
+    const formik = useFormik({
+        initialValues: {
+            reporte: "",
+            profesor: "",
+            defect: "",
+            marca: "",
+            procesador: "",
+            Horafinal: "",
+        },
+        handleSendReport: (formValue) => {
+          console.log(formValue)
+          handleSendReport(formValue);
+        }
+      });
     const handleSendReport = async () => {
         try {
-            const response = await axios.post('http://localhost:8080/api-siblab/report', {
+            const response = await axios.post('http://192.168.0.103:8080/api-siblab/report', {
                 profesor: selectedValue,
-                reporte: reporteValue
-            });
-            console.log(response);
-            // Aquí puedes agregar lógica para mostrar un mensaje de éxito o redirigir a otra pantalla
-        } catch (error) {
-            console.error(error);
-            // Aquí puedes agregar lógica para mostrar un mensaje de error
-        }
-    }
-
-    const [teachers, setTeachers] = useState([]);
-
-    useEffect(() => {
-        const selectTeacher = async () => {
-            const response = await axios.get('http://192.168.0.103:8080/api-siblab/user/',
+                reporte: reporteValue,
+                withCredentials: true,
+            },
             {
-                Withcredentials:true,     
-            });
-            const docenteFiltro = response.data.data;
-            const filterTeacter = docenteFiltro.filter(docente => docente.role === 'Teacher');
-            setTeachers(filterTeacter);
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          
+          if (response.status === 201) {
+            alert("Cuenta creada exitosamente");
+            navigation.navigate("navigation");
+          } else {
+            alert("Error al crear la cuenta");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Error al crear la cuenta");
+      
+          if (error.response && error.response.data) {
+            console.log("Error en los datos:", error.response.data);
+          }
         }
-        selectTeacher();
-    },[]);
+      };
 
-    return(
+    
+
+   
+  useEffect(() => {
+    const selectTeacher = async () => {
+      try {
+        const response = await axios.get('http://192.168.0.103:8080/api-siblab/user/', {
+          withCredentials: true,
+        });
+        const docenteFiltro = response.data.data;
+        const filterTeacter = docenteFiltro.filter(docente => docente.role === 'Teacher');
+        setTeachers(filterTeacter);
+      } catch (error) {
+        console.error(error);
+        // Aquí puedes agregar lógica para mostrar un mensaje de error
+      }
+    }
+    selectTeacher();
+  }, []);
+
+    return (
         <View style={styles.container}>
-            
-            
+
+
             <View style={styles.marca}>
                 <Text style={styles.texto}>Marca</Text>
             </View>
@@ -53,7 +93,7 @@ export default function ReportScreen(){
             <View style={styles.Procesador2}>
                 <Text style={styles.texto}>Core ¡7</Text>
             </View>
-            
+
             <View style={styles.Ubicacion}>
                 <Text style={styles.texto}>Ubicacion</Text>
             </View>
@@ -61,27 +101,39 @@ export default function ReportScreen(){
                 <Text style={styles.texto}>Ubicacion</Text>
             </View>
             <View style={styles.Horario}>
-                <Text style={styles.texto}>Horario</Text>
+                <Text style={styles.texto}>Horario Inicio</Text>
             </View>
             <View style={styles.Horario2}>
                 <Text style={styles.texto}>Horario</Text>
             </View>
+            <View style={styles.HorarioF}>
+                <Text style={styles.texto}>Horario Final</Text>
+            </View>
+            <View style={styles.Horario2F}>
+                <TextInput 
+                style={styles.texto} 
+                placeholder="Horario Final" 
+                onChangeText={(text)=>formik.setHorarioValue("Horafinal",text)}
+                errorMessage={formik.errors.Horafinal}
+                value={horarioValue}
+                />
+            </View>
             <View style={styles.docente}>
                 <Text style={styles.texto}>Docente</Text>
             </View>
-            <Picker
-                selectedValue={selectedValue}
-                
-                style={styles.picker}
-                onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}
-                prompt="Selecciona un profesor"
-            >
-                {teachers.map((teacher) => {
-                    return(
-                        <Picker.Item label={teacher.name} value={teacher._id} key={teacher._id}/>
-                    )
-                })}
-            </Picker>
+                <Picker
+                    selectedValue={formik.values.profesor}
+                    style={styles.picker}
+                    onValueChange={(itemValue, itemIndex) => formik.setFieldValue("profesor",itemValue)}
+                    errorMessage={formik.errors.profesor}
+                    prompt="Selecciona un profesor"
+                >
+                    {teachers.map((teacher) => {
+                        return (
+                            <Picker.Item label={teacher.name} value={teacher._id} key={teacher._id} />
+                        )
+                    })}
+                </Picker>
 
             <View style={styles.reporte}>
                 <TextInput
@@ -90,7 +142,7 @@ export default function ReportScreen(){
                     multiline
                     numberOfLines={6}
                     maxLength={100}
-                    style={{padding: 10}}
+                    style={{ padding: 10 }}
                     value={reporteValue}
                     onChangeText={setReporteValue}
                 />
@@ -100,8 +152,9 @@ export default function ReportScreen(){
                 <View style={styles.button}>
                     <Button
                         title="Agregar Reporte"
-                        buttonStyle={{backgroundColor: 'transparent'}}
-                        onPress={handleSendReport}
+                        buttonStyle={{ backgroundColor: 'transparent' }}
+                        onPress={formik.handleSubmit}
+                        loading={formik.isSubmitting}
                     />
                 </View>
             </View>
@@ -110,24 +163,24 @@ export default function ReportScreen(){
 }
 
 const styles = StyleSheet.create({
-    container:{
+    container: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center' 
+        justifyContent: 'center'
     },
-    button:{
+    button: {
         position: 'absolute',
         width: 200,
         height: 50,
         borderWidth: 1,
         top: 50,
         borderRadius: 10,
-        borderEndColor:'white',
-        borderStartColor:'white',
-        borderTopColor:'white',
-        borderBottomColor:'white',
+        borderEndColor: 'white',
+        borderStartColor: 'white',
+        borderTopColor: 'white',
+        borderBottomColor: 'white',
     },
-    reporte:{
+    reporte: {
         backgroundColor: 'transparent',
         width: 300,
         height: 100,
@@ -136,7 +189,7 @@ const styles = StyleSheet.create({
         top: 280,
         borderRadius: 10,
     },
-    area:{
+    area: {
         width: 400,
         height: 200,
         alignItems: 'center',
@@ -144,16 +197,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#121732',
         top: 300,
     },
-    picker:{
+    picker: {
         width: 150,
         height: 50,
         right: 30,
-        top: 440,
-        backgroundColor: 'white',
+        top: 490,
+        backgroundColor: '#D9D9D9',
         borderRadius: 10,
         position: 'absolute',
     },
-    marca:{
+    marca: {
         width: 150,
         height: 50,
         top: 220,
@@ -163,7 +216,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    marca2:{
+    marca2: {
         width: 150,
         height: 50,
         top: 220,
@@ -173,7 +226,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    Procesador:{
+    Procesador: {
         width: 150,
         height: 50,
         top: 270,
@@ -183,7 +236,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    Procesador2:{
+    Procesador2: {
         width: 150,
         height: 50,
         top: 270,
@@ -193,18 +246,18 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    docente:{
+    docente: {
         width: 150,
         height: 50,
-        top: 440,
+        top: 490,
         left: 30,
-        backgroundColor: '#D9D9D9',
+        backgroundColor: 'white',
         position: 'absolute',
         justifyContent: 'center',
         alignItems: 'center',
     },
 
-    Ubicacion:{
+    Ubicacion: {
         width: 150,
         height: 50,
         top: 340,
@@ -214,7 +267,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    Ubicacion2:{
+    Ubicacion2: {
         width: 150,
         height: 50,
         top: 340,
@@ -224,7 +277,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    Horario:{
+    Horario: {
         width: 150,
         height: 50,
         top: 390,
@@ -234,12 +287,32 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    Horario2:{
+    Horario2: {
         width: 150,
         height: 50,
         top: 390,
         right: 30,
         backgroundColor: '#D9D9D9',
+        position: 'absolute',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    HorarioF: {
+        width: 150,
+        height: 50,
+        top: 440,
+        left: 30,
+        backgroundColor: '#D9D9D9',
+        position: 'absolute',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    Horario2F: {
+        width: 150,
+        height: 50,
+        top: 440,
+        right: 30,
+        backgroundColor: 'white',
         position: 'absolute',
         justifyContent: 'center',
         alignItems: 'center',

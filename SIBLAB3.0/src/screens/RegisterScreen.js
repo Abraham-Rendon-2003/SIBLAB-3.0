@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Input, Button } from "react-native-elements";
 import { useFormik } from "formik";
+import { Picker } from "@react-native-picker/picker";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
@@ -22,6 +23,7 @@ const SignupSchema = Yup.object({
   name: Yup.string().required("Campo obligatorio"),
   surname: Yup.string().required("Campo obligatorio"),
   code: Yup.string().required("Campo obligatorio"),
+  classroom: Yup.string().required("Campo obligatorio"),
 });
 
 export default function RegisterScreen() {
@@ -29,9 +31,8 @@ export default function RegisterScreen() {
   const navigation = useNavigation();
   const [pass, setPass] = useState(false);
   const [confirm, setConfirm] = useState(false);
-  const image = {
-    uri: "https://p4.wallpaperbetter.com/wallpaper/141/158/403/simple-minimalism-gradient-wallpaper-preview.jpg",
-  };
+  const [groups, setGroups] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
 
   const formik = useFormik({
     initialValues: {
@@ -41,6 +42,8 @@ export default function RegisterScreen() {
       name: "",
       surname: "",
       code: "",
+      id_classroom: "",
+
     },
     validationSchema: SignupSchema,
     validateOnChange: false,
@@ -56,10 +59,23 @@ export default function RegisterScreen() {
   const showConfirm = () => {
     setConfirm(!confirm);
   };
+  const fetchGroups = async () => {
+    try {
+      const response = await axios.get('http://192.168.0.103:8080/api-siblab/classroom/');
+      setGroups(response.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
   const onSubmite = async (values) => {
     try {
       const response = await axios.post(
-        "http://192.168.0.103:8080/api-siblab/login/",
+        "http://192.168.0.103:8080/api-siblab/user/",
         {
           email: values.email,
           password: values.password,
@@ -67,6 +83,7 @@ export default function RegisterScreen() {
           surname: values.surname,
           code: values.code,
           role: "alumno",
+          id_classroom: values.id_classroom,
           Withcredentials:true,
         },
         {
@@ -78,7 +95,7 @@ export default function RegisterScreen() {
       
       if (response.status === 201) {
         alert("Cuenta creada exitosamente");
-        navigation.navigate("historial");
+        navigation.navigate("navigation");
       } else {
         alert("Error al crear la cuenta");
       }
@@ -148,6 +165,19 @@ export default function RegisterScreen() {
           onPress: () => showConfirm(),
         }}
       />
+      <Text>Seleccione su grupo:</Text>
+      <Picker
+        selectedValue={formik.values.id_classroom}
+        onValueChange={(itemValue, itemIndex) => formik.setFieldValue("id_classroom", itemValue)}
+        errorMessage={formik.errors.id_classroom}
+        style={{ height: 50, width: 150 }}
+      >
+        <Picker.Item label="Seleccione un grupo" value={null} />
+        {groups.map(group => (
+          <Picker.Item key={group.id} label={group.name} value={group.id} />
+        ))}
+      </Picker>
+
       <Button
         title="Registrar"
         onPress={formik.handleSubmit}

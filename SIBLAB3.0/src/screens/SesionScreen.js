@@ -27,7 +27,9 @@ export default function SesionScreen() {
       alert('Ingrese los datos para iniciar sesión')
     } else if (data && (data.username === username || data.password === password)) {
       alert('Bienvenido')
-      navigation.navigate('historial')
+      //const userId = data.data.id
+      //navigation.navigate('navigation', { userId })
+      navigation.navigate('navigation')
     } else {
       alert('Usuario no encontrado')
     }

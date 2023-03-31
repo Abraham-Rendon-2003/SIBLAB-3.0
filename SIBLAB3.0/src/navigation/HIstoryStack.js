@@ -7,7 +7,7 @@ const Stack = createNativeStackNavigator()
 
 export default function HIstoryStack() {
   return (
-<Stack.Navigator initialRouteName='index' screenOptions={({route}) => ({
+<Stack.Navigator initialRouteName='history' screenOptions={({route}) => ({
         headerShown: false,
     })}>
         <Stack.Screen name="historyS" component={IndexScreen} options={{title:'historyS'}}/>

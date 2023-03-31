@@ -3,16 +3,23 @@ import { StyleSheet, Text, View, TextInput, ImageBackground } from "react-native
 import axios from "axios";
 
 
-export default function PersonalScreen() {
-
+export default function PersonalScreen(props) {
+//   const route = useRoute();
+// const userId = route.params?.userId;
+const userId = props;
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     axios
       .get('http://192.168.0.103:8080/api-siblab/user/', {
-        Withcredentials: true,
-        })
-      .then(response => setUserData(response.data.data))
+        withCredentials: true,
+      })
+      .then(response => {
+        const currentUserData = response.data.data.find(
+          user => user.id === userId
+        );
+        setUserData(currentUserData);
+      })
       .catch(error => console.log(error));
   }, []);
 
@@ -22,25 +29,34 @@ export default function PersonalScreen() {
       <Text style={styles.title}>Información Personal</Text>
       <View style={styles.content}>
         <View style={styles.inputContainer}>
-            <Text style={styles.label}>Nombre</Text>
-            <TextInput style={styles.input} value={userData?.name} editable={false}/>
+          <Text style={styles.label}>Nombre</Text>
+          <TextInput
+            style={styles.input}
+            value={userData?.name}
+            editable={false}
+          />
         </View>
         <View style={styles.inputContainer}>
-            <Text style={styles.label}>Apellido Paterno</Text>
-            <TextInput style={styles.input} value={userData?.surname} editable={false}/>
+          <Text style={styles.label}>Apellido Paterno</Text>
+          <TextInput
+            style={styles.input}
+            value={userData?.surname}
+            editable={false}
+          />
         </View>
         <View style={styles.inputContainer}>
-            <Text style={styles.label}>Correo</Text>
-            <TextInput style={styles.input} value={userData?.username} editable={false}/>
-        </View>
-        <View style={styles.inputContainer}>
-            <Text style={styles.label}>Grupo</Text>
-            <TextInput style={styles.input} value={userData?.code} editable={false}/>
+          <Text style={styles.label}>Correo</Text>
+          <TextInput
+            style={styles.input}
+            value={userData?.email}
+            editable={false}
+          />
         </View>
       </View>
     </View>
-  )
+  );
 }
+
 
 const styles = StyleSheet.create({
   container: {
