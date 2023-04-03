@@ -1,39 +1,55 @@
-import React from "react"
+import React, {useContext } from "react"
+import { AuthContext } from "../components/common/auth/AuthContext"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { Icon } from "react-native-elements"
 import PersonalStack from "./PersonalStack"
-import ReportStack from "./ReportStack"
-import HIstoryStack from "./HIstoryStack"
-import QRScanner from "../screens/QRScanner"
 import QRScannerN from "./QRScannerN"
-
+import IndexStack from "./IndexStack"
 const Tab = createBottomTabNavigator()
 
 const icons = {
-  index: "clock",
+  index: "home-circle",
   personal: "account",
   scanner: "qrcode",
 };
 
-export default function AppNavigation(){
-    return(
-        <Tab.Navigator
-          screenOptions={({ route }) => ({
-            headerShown: false,
-            tabBarShowLabel: false,
-            tabBarActiveTintColor: "red",
-            tabBarInactiveTintColor: "grey",
-            tabBarStyle: {
-              backgroundColor: "transparent", 
-            },
-            tabBarIcon: ({ color, size }) => showIcon(route, color, size),
-          })}
-        >
-          <Tab.Screen component={QRScannerN} name="scanner" options={{title:'qr'}} />
-          <Tab.Screen component={HIstoryStack} name="index" options={{title:'Historial'}} />
-          <Tab.Screen component={PersonalStack} name="personal" options={{title:'Personal Information'}} />
-        </Tab.Navigator>
-    )
+
+export default function AppNavigation() {
+  const { user } = useContext(AuthContext);
+
+  return user ? (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: "red",
+        tabBarInactiveTintColor: "grey",
+
+        tabBarIcon: ({ color, size }) => showIcon(route, color, size),
+      })}
+    >
+      <Tab.Screen component={QRScannerN} name="scanner" options={{ title: 'qr' }} />
+      <Tab.Screen component={IndexStack}  name='index' options={{ title: "Inicio" }} />
+      <Tab.Screen component={PersonalStack} name="personal" options={{ title: 'Personal Information' }} />
+    </Tab.Navigator>
+  ) : (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: "red",
+        tabBarInactiveTintColor: "grey",
+
+        tabBarIcon: ({ color, size }) => showIcon(route, color, size),
+      })}
+    >
+      <Tab.Screen
+        component={IndexStack}
+        name='index'
+        options={{ title: "Inicio" }} />
+
+    </Tab.Navigator>
+  )
 }
 
 function showIcon(route, color, size) {

@@ -4,6 +4,7 @@ import LoginScreen from '../screens/LoginScreen'
 import RegisterScreen from "../screens/RegisterScreen"
 import SesionScreen from "../screens/SesionScreen"
 import NavigationStack from "./NavigationStack"
+import IndexScreen from "../screens/IndexScreen"
 
 const Stack = createNativeStackNavigator()
 
@@ -14,11 +15,9 @@ export default function IndexStack(){
             tabBarShowLabel:false,
 
             })}>
-            <Stack.Screen name="indexS" component={LoginScreen} options={{title:"Inicio"}}/>
+            <Stack.Screen name="indexS" component={IndexScreen} options={{title:"Inicio"}}/>
             <Stack.Screen name="sesionS" component={SesionScreen} options={{title:"Inicio de sesion"}}/>
             <Stack.Screen name="registerS" component={RegisterScreen} options={{title:"Registro"}}/>
-            <Stack.Screen name="navigation" component={NavigationStack} options={{title: 'navigation'}}/>
-
         </Stack.Navigator>
     )
 }

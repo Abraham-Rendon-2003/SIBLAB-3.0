@@ -9,7 +9,7 @@ export default function ReportStack(){
         <Stack.Navigator initialRouteName="report" screenOptions={({route}) => ({
             headerShown: false,
         })}>
-            <Stack.Screen name="report" component={ReportScreen} options={{title:'Report'}}/>
+            <Stack.Screen name="reports" component={ReportScreen} options={{title:'Report'}}/>
         </Stack.Navigator>
     )
 }

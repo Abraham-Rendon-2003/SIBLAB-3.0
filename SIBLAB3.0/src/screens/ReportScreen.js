@@ -5,14 +5,40 @@ import { useFormik } from "formik";
 import { Button, Input } from "react-native-elements";
 import axios from 'axios';
 
-export default function ReportScreen() {
+export default function ReportScreen({ route }) {
+    const {data,now} = route.params;    
     const [selectedValue, setSelectedValue] = useState("");
     const [reporteValue, setReporteValue] = useState("");
-    const [defectValue, setDefectValue] = useState("");
-    const [profesorValue, setProfesorValue] = useState("");
-    const [marcaValue, setMarcaValue] = useState("");
-    const [procesadorValue, setProcesadorValue] = useState("");
+    const [horarioValue, setHorarioValue] = useState("")
     const [teachers, setTeachers] = useState([]);
+    const [computer, setComputer] = useState("")
+ 
+    const selectTeacher = async () => {
+        try {
+            const response = await axios.get('http://192.168.1.74:8080/api-siblab/user/', {
+                withCredentials: true,
+            });
+            const docenteFiltro = response.data.data;
+            const filterTeacter = docenteFiltro.filter(docente => docente.role === 'Teacher');
+            console.log("Filtro d", filterTeacter)
+            setTeachers(filterTeacter);
+        } catch (error) {
+            console.error("ERROR t", error);
+        }
+    }
+  
+    useEffect(() => {
+        const getComputer = async () => {
+            try {
+                const response = await axios.get(`http://192.168.1.74:8080/api-siblab/machine/${data}`, { withCredentials: true })
+                setComputer(response.data.data)
+    
+            } catch (error) {
+            }
+        }
+        getComputer()
+        selectTeacher();
+    }, []);
     const formik = useFormik({
         initialValues: {
             reporte: "",
@@ -23,117 +49,107 @@ export default function ReportScreen() {
             Horafinal: "",
         },
         handleSendReport: (formValue) => {
-          console.log(formValue)
-          handleSendReport(formValue);
+            console.log(formValue)
+            handleSendReport(formValue);
         }
-      });
+    });
+    
     const handleSendReport = async () => {
         try {
-            const response = await axios.post('http://192.168.0.103:8080/api-siblab/report', {
+            const response = await axios.post('http://192.168.1.74:8080/api-siblab/report', {
                 profesor: selectedValue,
                 reporte: reporteValue,
                 withCredentials: true,
             },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 201) {
+                alert("Cuenta creada exitosamente");
+                navigation.navigate("navigation");
+            } else {
+                alert("Error al crear la cuenta");
             }
-          );
-          
-          if (response.status === 201) {
-            alert("Cuenta creada exitosamente");
-            navigation.navigate("navigation");
-          } else {
-            alert("Error al crear la cuenta");
-          }
         } catch (error) {
-          console.error("Error:", error);
-          alert("Error al crear la cuenta");
-      
-          if (error.response && error.response.data) {
-            console.log("Error en los datos:", error.response.data);
-          }
+            console.error("Error:", error);
+            alert("Error al crear la cuenta");
+
+            if (error.response && error.response.data) {
+                console.log("Error en los datos:", error.response.data);
+            }
         }
-      };
+    };
+  
 
-    
 
-   
-  useEffect(() => {
-    const selectTeacher = async () => {
-      try {
-        const response = await axios.get('http://192.168.0.103:8080/api-siblab/user/', {
-          withCredentials: true,
-        });
-        const docenteFiltro = response.data.data;
-        const filterTeacter = docenteFiltro.filter(docente => docente.role === 'Teacher');
-        setTeachers(filterTeacter);
-      } catch (error) {
-        console.error(error);
-        // Aquí puedes agregar lógica para mostrar un mensaje de error
-      }
-    }
-    selectTeacher();
-  }, []);
+
+ 
 
     return (
         <View style={styles.container}>
 
 
             <View style={styles.marca}>
-                <Text style={styles.texto}>Marca</Text>
+                <Text style={styles.texto}>Nombre</Text>
             </View>
             <View style={styles.marca2}>
-                <Text style={styles.texto}>Dell</Text>
+                <Text style={styles.texto}>{computer.name}</Text>
             </View>
             <View style={styles.Procesador}>
-                <Text style={styles.texto}>Procesador</Text>
+                <Text style={styles.texto}>Marca</Text>
             </View>
             <View style={styles.Procesador2}>
-                <Text style={styles.texto}>Core ¡7</Text>
+                <Text style={styles.texto}>{computer.brand}</Text>
             </View>
 
             <View style={styles.Ubicacion}>
                 <Text style={styles.texto}>Ubicacion</Text>
             </View>
             <View style={styles.Ubicacion2}>
-                <Text style={styles.texto}>Ubicacion</Text>
+                <Text style={styles.texto}>{computer.laboratory && computer.laboratory.name}
+</Text>
             </View>
             <View style={styles.Horario}>
                 <Text style={styles.texto}>Horario Inicio</Text>
             </View>
             <View style={styles.Horario2}>
-                <Text style={styles.texto}>Horario</Text>
+                <Text style={styles.texto}>{now}</Text>
             </View>
             <View style={styles.HorarioF}>
                 <Text style={styles.texto}>Horario Final</Text>
             </View>
             <View style={styles.Horario2F}>
-                <TextInput 
-                style={styles.texto} 
-                placeholder="Horario Final" 
-                onChangeText={(text)=>formik.setHorarioValue("Horafinal",text)}
-                errorMessage={formik.errors.Horafinal}
-                value={horarioValue}
+                <TextInput
+                    style={styles.texto}
+                    placeholder="Horario Final"
+                    onChangeText={(text) => formik.setHorarioValue("Horafinal", text)}
+                    errorMessage={formik.errors.Horafinal}
+                    value={horarioValue}
                 />
             </View>
             <View style={styles.docente}>
                 <Text style={styles.texto}>Docente</Text>
             </View>
-                <Picker
-                    selectedValue={formik.values.profesor}
-                    style={styles.picker}
-                    onValueChange={(itemValue, itemIndex) => formik.setFieldValue("profesor",itemValue)}
-                    errorMessage={formik.errors.profesor}
-                    prompt="Selecciona un profesor"
-                >
-                    {teachers.map((teacher) => {
-                        return (
-                            <Picker.Item label={teacher.name} value={teacher._id} key={teacher._id} />
-                        )
-                    })}
-                </Picker>
+            <Picker
+                style={styles.picker}
+                onValueChange={(itemValue) => {
+                    formik.setFieldValue("profesor", itemValue);
+                    console.log(formik.values.profesor);
+                }} 
+                selectedValue={formik.values.profesor}
+                errorMessage={formik.errors.profesor}
+                prompt="Selecciona un profesor"
+            >
+                {teachers.map((teacher) => {
+                    return (
+                        <Picker.Item label={teacher.name} value={teacher.id} key={teacher.id} />
+                    )
+                })}
+            </Picker>
 
             <View style={styles.reporte}>
                 <TextInput

@@ -61,7 +61,7 @@ export default function RegisterScreen() {
   };
   const fetchGroups = async () => {
     try {
-      const response = await axios.get('http://192.168.0.103:8080/api-siblab/classroom/');
+      const response = await axios.get('http://192.168.1.74:8080/api-siblab/classroom/');
       setGroups(response.data.data);
     } catch (error) {
       console.error(error);
@@ -72,17 +72,18 @@ export default function RegisterScreen() {
     fetchGroups();
   }, []);
 
+
   const onSubmite = async (values) => {
     try {
       const response = await axios.post(
-        "http://192.168.0.103:8080/api-siblab/user/",
+        "http://192.168.1.74:8080/api-siblab/user/",
         {
           email: values.email,
           password: values.password,
           name: values.name,
           surname: values.surname,
           code: values.code,
-          role: "alumno",
+          role: "Student",
           id_classroom: values.id_classroom,
           Withcredentials:true,
         },

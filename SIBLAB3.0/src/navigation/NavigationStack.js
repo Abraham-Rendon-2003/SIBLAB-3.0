@@ -8,6 +8,7 @@ import ReportScreen from "../screens/ReportScreen"
 const Stack = createNativeStackNavigator()
 
 export default function NavigationStack(){
+    
     return(
         <Stack.Navigator  screenOptions={({route})=>({
             headerShown:false,
