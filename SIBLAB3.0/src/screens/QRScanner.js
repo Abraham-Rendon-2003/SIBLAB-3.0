@@ -15,7 +15,7 @@ export default function QRScanner() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#0968ED",
+        backgroundColor: "#fff",
         alignItems: 'center',
         justifyContent: 'center',
     }

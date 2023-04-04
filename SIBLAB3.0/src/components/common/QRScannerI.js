@@ -7,9 +7,12 @@ export default function QRScannerI(props) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [text, setText] = useState('');
-  const [computer, setComputer] = useState("")
+  const [computer, setComputer] = useState("");
   const navigation = useNavigation();
   const [fechaInicio, setFechaInicio] = useState(null);
+  const [fechaF, setFechaF] = useState(null);
+  const [segundoEscaneoRealizado, setSegundoEscaneoRealizado] = useState(false);
+
 
   const askForCameraPermission = async () => {
     const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -34,11 +37,19 @@ export default function QRScannerI(props) {
     }).substring(0, 19).replace('T', ' ');
     const parts = horaMx.split(/[\/ :]/);
     const now = parts[2] + "-" + parts[1] + "-" + parts[0] + " " + parts[3] + ":" + parts[4] + ":" + parts[5];
-    setFechaInicio(now);
+
+    if (fechaInicio && !segundoEscaneoRealizado) {
+      setFechaF(now);
+      setSegundoEscaneoRealizado(false);
+    } else {
+      setFechaInicio(now);
+    }
+
     setText(data);
     console.log('Type: ' + type + '\nData: ' + data);
     navigation.navigate('reports', { data, now });
   };
+
 
   if (hasPermission === null) {
     return (
@@ -56,10 +67,13 @@ export default function QRScannerI(props) {
         <Text style={styles.mainText}>{text}</Text>
         {scanned && (
           <Button
-            title={'Escaneame'}
-            onPress={() => setScanned(false)}
-            color='tomato'
-          />
+          title={'Escanear nuevamente'}
+          onPress={() => {
+            setScanned(false);
+            setSegundoEscaneoRealizado(false);
+          }}
+          color='tomato'
+        />
         )}
       </View>
     );
@@ -72,7 +86,7 @@ export default function QRScannerI(props) {
         <BarCodeScanner
 
           onBarCodeScanned={scanned ? undefined : handleBarCodeScanner}
-          style={{ height: 250, width: 250 }}
+          style={{ height: 250, width: 300 }}
         />
         {/* <QRCodeScanner
         onRead={handleQRScanned}
@@ -95,8 +109,6 @@ const styles = StyleSheet.create({
   barcodebox: {
     alignItems: "center",
     justifyContent: "center",
-    height: 300,
-    width: 300,
   },
   mainText: {
     fontSize: 16,

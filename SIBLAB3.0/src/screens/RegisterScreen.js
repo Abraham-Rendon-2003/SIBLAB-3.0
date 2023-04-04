@@ -23,7 +23,7 @@ const SignupSchema = Yup.object({
   name: Yup.string().required("Campo obligatorio"),
   surname: Yup.string().required("Campo obligatorio"),
   code: Yup.string().required("Campo obligatorio"),
-  classroom: Yup.string().required("Campo obligatorio"),
+  id_classroom: Yup.string().required("Campo obligatorio"),
 });
 
 export default function RegisterScreen() {
@@ -61,7 +61,7 @@ export default function RegisterScreen() {
   };
   const fetchGroups = async () => {
     try {
-      const response = await axios.get('http://192.168.1.74:8080/api-siblab/classroom/');
+      const response = await axios.get('http://192.168.0.103:8080/api-siblab/classroom/');
       setGroups(response.data.data);
     } catch (error) {
       console.error(error);
@@ -76,7 +76,7 @@ export default function RegisterScreen() {
   const onSubmite = async (values) => {
     try {
       const response = await axios.post(
-        "http://192.168.1.74:8080/api-siblab/user/",
+        "http://192.168.0.103:8080/api-siblab/user/",
         {
           email: values.email,
           password: values.password,
@@ -166,18 +166,20 @@ export default function RegisterScreen() {
           onPress: () => showConfirm(),
         }}
       />
-      <Text>Seleccione su grupo:</Text>
-      <Picker
-        selectedValue={formik.values.id_classroom}
-        onValueChange={(itemValue, itemIndex) => formik.setFieldValue("id_classroom", itemValue)}
-        errorMessage={formik.errors.id_classroom}
-        style={{ height: 50, width: 150 }}
-      >
-        <Picker.Item label="Seleccione un grupo" value={null} />
-        {groups.map(group => (
-          <Picker.Item key={group.id} label={group.name} value={group.id} />
-        ))}
-      </Picker>
+      <View style={styles.pickerContainer}>
+  <Picker
+    selectedValue={selectedGroup}
+    onValueChange={(itemValue, itemIndex) => setSelectedGroup(itemValue)}
+    style={styles.picker}
+    errorMessage={formik.errors.id_classroom}
+  >
+    <Picker.Item label="Seleccione un grupo" value={null} />
+    {groups.map(group => (
+      <Picker.Item key={group.id} label={group.name} value={group.id} />
+    ))}
+  </Picker>
+</View>
+
 
       <Button
         title="Registrar"
@@ -191,26 +193,25 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 0,
+    flex: 1,
+    backgroundColor: "#fff",
     alignItems: "center",
-    backgroundColor: "cyan",
-    height: "100%",
+    justifyContent: "center",
   },
   title: {
-    fontSize: 20,
-    color: "#fff",
+    fontSize: 24,
+    fontWeight: "bold",
     marginBottom: 50,
     marginTop: 50,
+    color: "#fff",
   },
   input: {
-    fontSize: 14,
+    fontSize: 16,
     padding: 10,
-    top: 15,
-    marginLeft: -10,
     backgroundColor: "#F5E7E7",
     marginBottom: 20,
     color: "#000",
-    width: 270,
+    width: 300,
     height: 50,
     borderRadius: 10,
   },
@@ -220,20 +221,33 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-    marginBottom: 20,
     position: "absolute",
   },
+  pickerContainer: {
+    backgroundColor: "#F5E7E7",
+    borderRadius: 10,
+    marginBottom: 20,
+    height: 50,
+    width: 300,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  picker: {
+    height: 50,
+    width: 290,
+    color: "#000",
+  },
+
   button: {
     justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'transparent',
-        borderRadius: 8,
-        height: 56,
-        marginTop: 20,
-        top: 30,
-        width: 233,
-        borderWidth: 2,
-        borderColor: '#fff',
-        color: '#fff',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderRadius: 8,
+    height: 56,
+    marginTop: 20,
+    width: 233,
+    borderWidth: 2,
+    borderColor: '#fff',
+    color: '#fff',
   },
 });
