@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
         width: 150,
         height: 50,
         right: 30,
-        top: 490,
+        top: 470,
         backgroundColor: '#D9D9D9',
         borderRadius: 10,
         position: 'absolute',
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     docente: {
         width: 150,
         height: 50,
-        top: 490,
+        top: 470,
         left: 30,
         backgroundColor: 'white',
         position: 'absolute',
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     Ubicacion: {
         width: 150,
         height: 50,
-        top: 340,
+        top: 320,
         left: 30,
         backgroundColor: '#D9D9D9',
         position: 'absolute',
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     Ubicacion2: {
         width: 150,
         height: 50,
-        top: 340,
+        top: 320,
         right: 30,
         backgroundColor: 'white',
         position: 'absolute',
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     Horario: {
         width: 150,
         height: 50,
-        top: 390,
+        top: 370,
         left: 30,
         backgroundColor: 'white',
         position: 'absolute',
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     HorarioF: {
         width: 150,
         height: 50,
-        top: 440,
+        top: 420,
         left: 30,
         backgroundColor: '#D9D9D9',
         position: 'absolute',

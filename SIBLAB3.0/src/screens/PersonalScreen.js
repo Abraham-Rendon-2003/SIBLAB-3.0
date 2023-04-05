@@ -1,5 +1,5 @@
 import React, { useState, useEffect,useContext } from "react";
-import { StyleSheet, Text, View, TextInput, ImageBackground } from "react-native";
+import { StyleSheet, Text, View, TextInput, ImageBackground, ActivityIndicator } from "react-native";
 import axios from "axios";
 import { Button } from "react-native-elements";
 import Loading from "../components/common/Loading";
@@ -12,20 +12,24 @@ export default function PersonalScreen() {
 
   const [userData, setUserData] = useState(null);
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
   const { logout } = useContext(AuthContext);
 
   useEffect(() => {
     const getSession = async () => {
       const userData = await AsyncStorage.getItem("user")
+      console.log("user",userData)
       setUserData(JSON.parse(userData))
     }
     getSession()
   }, []);
 
   const cerrarSesion = async () => {
+    setLoading(true);
     const user = await AsyncStorage.removeItem('user')
     console.log("elimniado", user)
     logout();
+    setLoading(false);
     navigation.navigate("index", { Screen: "indexS" })
   }
   return (
@@ -53,7 +57,7 @@ export default function PersonalScreen() {
           <Text style={styles.label}>Correo</Text>
           <TextInput
             style={styles.input}
-            value={userData?.username}
+          value={userData?.username|| userData?.email}
             editable={false}
           />
         </View>
@@ -61,7 +65,9 @@ export default function PersonalScreen() {
           title="Cerrar Sesion"
           onPress={cerrarSesion}
           buttonStyle={styles.button}
-          titleStyle={styles.title} />
+          titleStyle={styles.titleBtn} />
+                {loading && <ActivityIndicator />}
+
       </View>
 
     </View>
@@ -83,14 +89,13 @@ const styles = StyleSheet.create({
     alignContent: 'space-between'
   },
   title: {
-    textAlign: "center",
+    textAlign: 'center',
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginVertical: 10,
-    color: "#fff",
-    top: 90,
-
-  },
+    color: '#fff',
+    top: 40
+},
   input: {
     width: 300,
     padding: 12,
@@ -126,7 +131,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     paddingVertical: 10
   },
-  title: {
+  titleBtn: {
     color: "#0D5BD7"
   }
 })
