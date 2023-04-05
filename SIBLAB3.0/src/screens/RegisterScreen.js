@@ -76,7 +76,7 @@ export default function RegisterScreen() {
   }, []);
 
 
- 
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <ImageBackground
@@ -149,9 +149,7 @@ export default function RegisterScreen() {
           selectedValue={formik.values.id_classroom}
           onValueChange={(itemValue, itemIndex) => formik.setFieldValue("id_classroom", itemValue)}
           errorMessage={formik.errors.id_classroom}
-                  value={formik.values.id_classroom}
-
-        >
+                  value={formik.values.id_classroom}>
           <Picker.Item label="Seleccione un grupo" value={null} />
           {groups.map(group => (
             <Picker.Item key={group.id} label={group.name} value={group.id} />
@@ -177,6 +175,9 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
 
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
     fontSize: 24,
@@ -190,6 +191,13 @@ const styles = StyleSheet.create({
     padding: 5,
     top: 15,
     marginLeft: -10,
+    marginBottom: 50,
+    marginTop: 50,
+    color: "#fff",
+  },
+  input: {
+    fontSize: 16,
+    padding: 10,
     backgroundColor: "#F5E7E7",
     marginBottom: 20,
     color: "#000",
@@ -203,7 +211,6 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-    marginBottom: 20,
     position: "absolute",
   },
   pickerContainer: {
@@ -218,6 +225,20 @@ const styles = StyleSheet.create({
 
   },
   button: {
+    marginBottom: 20,
+    height: 50,
+    width: 300,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  picker: {
+    height: 50,
+    width: 290,
+    color: "#000",
+  },
+
+  button: {
+    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
     borderRadius: 8,

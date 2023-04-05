@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react"
-import { View, StyleSheet, ImageBackground, ActivityIndicator, StatusBar } from "react-native"
+import { View, StyleSheet, ImageBackground, StatusBar } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { Image, Button, Text, Icon, Input, } from "react-native-elements"
 import { AuthContext } from "../components/common/auth/AuthContext";
@@ -148,3 +148,5 @@ const styles = StyleSheet.create({
     color: "#c1c1c1"
   },
 })
+
+  

@@ -7,10 +7,12 @@ export default function QRScannerI(props) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [text, setText] = useState('');
-  const [computer, setComputer] = useState("")
+  const [computer, setComputer] = useState("");
   const navigation = useNavigation();
   const [fechaInicio, setFechaInicio] = useState(null);
+  const [fechaF, setFechaF] = useState(null);
   const [segundoEscaneoRealizado, setSegundoEscaneoRealizado] = useState(false);
+
 
   const askForCameraPermission = async () => {
     const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -37,6 +39,7 @@ export default function QRScannerI(props) {
     const now = parts[2] + "-" + parts[1] + "-" + parts[0] + " " + parts[3] + ":" + parts[4] + ":" + parts[5];
     setFechaInicio(now);
     
+
     if (fechaInicio && !segundoEscaneoRealizado) {
       setFechaF(now);
       setSegundoEscaneoRealizado(false);
@@ -48,6 +51,7 @@ export default function QRScannerI(props) {
     console.log('Type: ' + type + '\nData: ' + data);
     navigation.navigate('reports', { data, now });
   };
+
 
   if (hasPermission === null) {
     return (
@@ -107,7 +111,6 @@ const styles = StyleSheet.create({
   barcodebox: {
     alignItems: "center",
     justifyContent: "center",
-  
   },
   mainText: {
     fontSize: 16,

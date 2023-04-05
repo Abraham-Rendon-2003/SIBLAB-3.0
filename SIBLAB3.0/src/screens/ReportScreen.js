@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from "react"
-import { StyleSheet, Text, View, TextInput } from 'react-native'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
 import { Picker } from '@react-native-picker/picker';
 import { useFormik } from "formik";
 import { Button, Input } from "react-native-elements";
+import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 
 export default function ReportScreen({ route }) {
-    const {data,now} = route.params;    
+    const { data, now } = route.params;
     const [selectedValue, setSelectedValue] = useState("");
     const [reporteValue, setReporteValue] = useState("");
     const [horarioValue, setHorarioValue] = useState("")
     const [teachers, setTeachers] = useState([]);
     const [computer, setComputer] = useState("")
- 
+    const navigation = useNavigation();
+
     const selectTeacher = async () => {
         try {
-            const response = await axios.get('http://192.168.1.74:8080/api-siblab/user/', {
+            const response = await axios.get('http://192.168.0.103:8080/api-siblab/user/', {
                 withCredentials: true,
             });
             const docenteFiltro = response.data.data;
@@ -26,13 +28,13 @@ export default function ReportScreen({ route }) {
             console.error("ERROR t", error);
         }
     }
-  
+
     useEffect(() => {
         const getComputer = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.74:8080/api-siblab/machine/${data}`, { withCredentials: true })
+                const response = await axios.get(`http://192.168.0.103:8080/api-siblab/machine/${data}`, { withCredentials: true })
                 setComputer(response.data.data)
-    
+
             } catch (error) {
             }
         }
@@ -53,41 +55,41 @@ export default function ReportScreen({ route }) {
             handleSendReport(formValue);
         }
     });
-    
-    const handleSendReport = async () => {
-        try {
-            const response = await axios.post('http://192.168.1.74:8080/api-siblab/report', {
-                profesor: selectedValue,
-                reporte: reporteValue,
-                withCredentials: true,
-            },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
 
-            if (response.status === 201) {
-                alert("Cuenta creada exitosamente");
-                navigation.navigate("navigation");
-            } else {
-                alert("Error al crear la cuenta");
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Error al crear la cuenta");
+    // const handleSendReport = async () => {
+    //     try {
+    //         const response = await axios.post('http://192.168.0.103:8080/api-siblab/report', {
+    //             profesor: selectedValue,
+    //             reporte: reporteValue,
+    //             withCredentials: true,
+    //         },
+    //             {
+    //                 headers: {
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
 
-            if (error.response && error.response.data) {
-                console.log("Error en los datos:", error.response.data);
-            }
-        }
-    };
-  
+    //         if (response.status === 201) {
+    //             alert("Cuenta creada exitosamente");
+    //             navigation.navigate("navigation");
+    //         } else {
+    //             alert("Error al crear la cuenta");
+    //         }
+    //     } catch (error) {
+    //         console.error("Error:", error);
+    //         alert("Error al crear la cuenta");
 
+    //         if (error.response && error.response.data) {
+    //             console.log("Error en los datos:", error.response.data);
+    //         }
+    //     }
+    // };
 
 
- 
+
+
+
 
     return (
         <View style={styles.container}>
@@ -111,7 +113,7 @@ export default function ReportScreen({ route }) {
             </View>
             <View style={styles.Ubicacion2}>
                 <Text style={styles.texto}>{computer.laboratory && computer.laboratory.name}
-</Text>
+                </Text>
             </View>
             <View style={styles.Horario}>
                 <Text style={styles.texto}>Horario Inicio</Text>
@@ -139,7 +141,7 @@ export default function ReportScreen({ route }) {
                 onValueChange={(itemValue) => {
                     formik.setFieldValue("profesor", itemValue);
                     console.log(formik.values.profesor);
-                }} 
+                }}
                 selectedValue={formik.values.profesor}
                 errorMessage={formik.errors.profesor}
                 prompt="Selecciona un profesor"
@@ -166,12 +168,11 @@ export default function ReportScreen({ route }) {
 
             <View style={styles.area}>
                 <View style={styles.button}>
-                    <Button
-                        title="Agregar Reporte"
-                        buttonStyle={{ backgroundColor: 'transparent' }}
-                        onPress={formik.handleSubmit}
-                        loading={formik.isSubmitting}
-                    />
+
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
+                        <Text style={styles.buttonText}>Regresar</Text>
+                    </TouchableOpacity>
+                    
                 </View>
             </View>
         </View>
@@ -272,7 +273,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-
     Ubicacion: {
         width: 150,
         height: 50,
@@ -306,12 +306,11 @@ const styles = StyleSheet.create({
     Horario2: {
         width: 150,
         height: 50,
-        top: 390,
+        top: 370,
         right: 30,
         backgroundColor: '#D9D9D9',
         position: 'absolute',
         justifyContent: 'center',
-        alignItems: 'center',
     },
     HorarioF: {
         width: 150,
@@ -326,7 +325,7 @@ const styles = StyleSheet.create({
     Horario2F: {
         width: 150,
         height: 50,
-        top: 440,
+        top: 420,
         right: 30,
         backgroundColor: 'white',
         position: 'absolute',
