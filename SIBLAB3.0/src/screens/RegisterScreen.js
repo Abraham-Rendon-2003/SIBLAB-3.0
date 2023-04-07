@@ -24,6 +24,7 @@ export default function RegisterScreen() {
   const [confirm, setConfirm] = useState(false);
   const [groups, setGroups] = useState([]);
   const { login } = useContext(AuthContext);
+  const [nombreError, setNombreError] = useState('');
 
   const formik = useFormik({
     initialValues: {
@@ -91,6 +92,7 @@ export default function RegisterScreen() {
         onChangeText={(text) => formik.setFieldValue("name", text)}
         errorMessage={formik.errors.name}
         value={formik.values.name}
+
       />
       <Input
         containerStyle={styles.input}
@@ -174,10 +176,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     height: "100%",
     justifyContent: "center",
-
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
   },
   title: {
     fontSize: 24,
@@ -186,24 +184,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: 20,
   },
+
   input: {
     fontSize: 16,
-    padding: 5,
-    top: 15,
-    marginLeft: -10,
-    marginBottom: 50,
-    marginTop: 50,
-    color: "#fff",
-  },
-  input: {
-    fontSize: 16,
-    padding: 10,
+    padding: 3,
     backgroundColor: "#F5E7E7",
     marginBottom: 20,
     color: "#000",
     width: 300,
     height: 50,
     borderRadius: 10,
+    
   },
   error: {
     color: "red",
@@ -220,9 +211,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     height: 50,
     width: 300,
-    marginLeft: -10,
-
-
   },
   button: {
     marginBottom: 20,
@@ -231,12 +219,6 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 10,
   },
-  picker: {
-    height: 50,
-    width: 290,
-    color: "#000",
-  },
-
   button: {
     justifyContent: 'center',
     alignItems: 'center',

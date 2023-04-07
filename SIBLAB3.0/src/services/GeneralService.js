@@ -1,4 +1,6 @@
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 
 
 export const getReport = async (id) => {
@@ -49,7 +51,7 @@ export const LoginService = async (values) => {
 
 export const RegisterService = async (values) => {
 
-    console.log("Register",values)
+    console.log("Register", values)
     try {
         const response = await axios.post("http://192.168.1.74:8080/api-siblab/user/", {
             email: values.email,
@@ -68,11 +70,38 @@ export const RegisterService = async (values) => {
         return response;
 
     } catch (error) {
-console.log("Error register",error)
-if (error.response && error.response.data) {
-    console.log("Error en los datos:", error.response.data);
-    alert("Matricula ya registrada")
-  }
+        console.log("Error register", error)
+        if (error.response && error.response.data) {
+            console.log("Error en los datos:", error.response.data);
+            alert("Matricula ya registrada")
+        }
     }
 
+}
+
+export const CreateReport = async (values) => {
+    console.log("Values en report",values)
+    try {
+        const response = await axios.post("http://192.168.1.74:8080/api-siblab/report/", {
+            status: "Pending_student",
+            id_teacher: values.values.id_teacher,
+            time_Register: values.values.time_Register,
+            time_Finish: values.values.time_Finish,
+            defect: false,
+            student: {
+                id: values.userData.id
+            },
+            info: values.values.info,
+            machine: {
+                id: values.data
+            }
+        },
+            {
+                Withcredentials: true,
+            }
+        );
+        return response;
+    } catch (error) {
+        console.log("Error en createdReport", error)
+    }
 }

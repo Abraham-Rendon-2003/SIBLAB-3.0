@@ -42,7 +42,8 @@ export default function IndexScreen() {
 
     return (
         loading ? <Loading visible={true} text={"Validando Sesion"} /> : user ?
-            <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
+            <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                 <ImageBackground source={require('../assets/img/fondo.png')} resizeMode="cover" style={styles.image}></ImageBackground>
                 <Text style={styles.title}>Historial</Text>
                 <View style={styles.content}>
@@ -86,6 +87,8 @@ export default function IndexScreen() {
 
                 </View>
             </ScrollView>
+            </View>
+
             : (<LoginScreen />)
     )
 }
@@ -93,17 +96,19 @@ export default function IndexScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
     },
+    scrollView: {
+        flex: 1,
+      },
     content: {
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        top: 100,
+        marginTop: 100,
     },
     card: {
         backgroundColor: '#D9D9D9',
-        width: 320,
+        width: 360,
         height: 130,
         borderRadius: 10,
         flexDirection: 'row',
