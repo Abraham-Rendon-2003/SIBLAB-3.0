@@ -3,7 +3,8 @@ import { StyleSheet, Text, View, Button } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useNavigation } from '@react-navigation/native';
 
-export default function QRScannerI(props) {
+export default function QrScannerF({route}) {
+  const {now} = route.params;
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [text, setText] = useState('');
@@ -36,20 +37,16 @@ export default function QRScannerI(props) {
       second: "2-digit",
     }).substring(0, 19).replace('T', ' ');
     const parts = horaMx.split(/[\/ :]/);
-    const now = parts[2] + "-" + parts[1] + "-" + parts[0] + " " + parts[3] + ":" + parts[4] + ":" + parts[5];
-    setFechaInicio(now);
-    
+    const now1 = parts[2] + "-" + parts[1] + "-" + parts[0] + " " + parts[3] + ":" + parts[4] + ":" + parts[5];
 
     if (fechaInicio && !segundoEscaneoRealizado) {
-      setFechaF(now);
+      setFechaF(now1);
       setSegundoEscaneoRealizado(false);
     } else {
       setFechaInicio(now);
     }
-
-    setText(data);
     console.log('Type: ' + type + '\nData: ' + data);
-    navigation.navigate('reports', { data, now });
+    navigation.navigate('reports', { data, now, now1 });
   };
 
 
@@ -88,7 +85,7 @@ export default function QRScannerI(props) {
         <BarCodeScanner
 
           onBarCodeScanned={scanned ? undefined : handleBarCodeScanner}
-          style={{ height: 350, width: 350 }}
+          style={{ height: 250, width: 300 }}
         />
         {/* <QRCodeScanner
         onRead={handleQRScanned}
@@ -100,6 +97,7 @@ export default function QRScannerI(props) {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

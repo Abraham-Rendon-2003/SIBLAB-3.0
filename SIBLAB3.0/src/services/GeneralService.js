@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 export const getReport = async (id) => {
     try {
-        const url = `http://192.168.1.74:8080/api-siblab/report/`
+        const url = `http://192.168.0.103:8080/api-siblab/report/`
         const response = await axios.get(url, {
             withCredentials: true
 
@@ -19,7 +19,7 @@ export const getReport = async (id) => {
 
 export const getDocentes = async () => {
     try {
-        const url = `http://192.168.1.74:8080/api-siblab/user/`
+        const url = `http://192.168.0.103:8080/api-siblab/user/`
         const response = await axios.get(url, {
             withCredentials: true
 
@@ -40,7 +40,7 @@ export const LoginService = async (values) => {
         credentials: 'include'
     }
     try {
-        const res = await fetch('http://192.168.1.74:8080/api-siblab/login/', req)
+        const res = await fetch('http://192.168.0.103:8080/api-siblab/login/', req)
         const data = await res.json()
         return data;
     } catch (error) {
@@ -53,7 +53,7 @@ export const RegisterService = async (values) => {
 
     console.log("Register", values)
     try {
-        const response = await axios.post("http://192.168.1.74:8080/api-siblab/user/", {
+        const response = await axios.post("http://192.168.0.103:8080/api-siblab/user/", {
             email: values.email,
             password: values.password,
             name: values.name,
@@ -82,7 +82,7 @@ export const RegisterService = async (values) => {
 export const CreateReport = async (values) => {
     console.log("Values en report",values)
     try {
-        const response = await axios.post("http://192.168.1.74:8080/api-siblab/report/", {
+        const response = await axios.post("http://192.168.0.103:8080/api-siblab/report/", {
             status: "Pending_student",
             id_teacher: values.values.id_teacher,
             time_Register: values.values.time_Register,

@@ -9,17 +9,21 @@ import { CreateReport } from "../services/GeneralService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ReportScreen({ route }) {
-    const { data, fechaInicio, fechaFinal } = route.params;
-    console.log("fecha inicio", fechaInicio)
-    console.log("fecha final", fechaFinal)
+    const { data, now, now1 } = route.params;
     const [teachers, setTeachers] = useState([]);
     const [computer, setComputer] = useState("")
+    const [showScanButton, setShowScanButton] = useState(true);
     const navigation = useNavigation();
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(false);
+    
+    const SegundoEscaneo = () => {
+        navigation.navigate('scannerF', { now: now });
+    }
+
     const selectTeacher = async () => {
         try {
-            const response = await axios.get('http://192.168.1.74:8080/api-siblab/user/', {
+            const response = await axios.get('http://192.168.0.103:8080/api-siblab/user/', {
                 withCredentials: true,
             });
             const docenteFiltro = response.data.data;
@@ -34,7 +38,7 @@ export default function ReportScreen({ route }) {
     useEffect(() => {
         const getComputer = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.74:8080/api-siblab/machine/${data}`, { withCredentials: true })
+                const response = await axios.get(`http://192.168.0.103:8080/api-siblab/machine/${data}`, { withCredentials: true })
                 setComputer(response.data.data)
 
             } catch (error) {
@@ -53,8 +57,8 @@ export default function ReportScreen({ route }) {
         formik.setValues({
             info: "",
             id_teacher: 0,
-            time_Register: fechaInicio ?fechaInicio : "",
-            time_Finish: fechaFinal ? fechaFinal : "",
+            time_Register: now ?now : "",
+            time_Finish: now1 ? now1 : "",
         })
     }, [data])
     const formik = useFormik({
@@ -62,7 +66,7 @@ export default function ReportScreen({ route }) {
             info: "",
             id_teacher: 0,
             time_Register: "",
-            time_Finish: "",
+            time_Finish: now1 ? now1 : "",
         },
         onSubmit: async (values) => {
             console.log("values report", values)
@@ -71,6 +75,12 @@ export default function ReportScreen({ route }) {
             console.log("Respuesta", response)
         }
     });
+
+    useEffect(() => {
+        if (now1) {
+          setShowScanButton(false);
+        }
+      }, [now1]);
 
 
     return (
@@ -101,11 +111,11 @@ export default function ReportScreen({ route }) {
                     <Text style={styles.texto}>Horario Inicio</Text>
                 </View>
                 <View style={styles.Horario2}>
-                    <TextInput style={styles.texto} placeholder={fechaInicio}
+                    <TextInput style={styles.texto} placeholder={now}
                         name="time_Register"
                         onChangeText={(text) => formik.setFieldValue("time_Register", text)}
                         errorMessage={formik.errors.time_Register}
-                        value={fechaInicio}
+                        value={now}
                     />
                 </View>
                 <View style={styles.HorarioF}>
@@ -114,11 +124,11 @@ export default function ReportScreen({ route }) {
                 <View style={styles.Horario2F}>
                     <TextInput
                         style={styles.texto}
-                        placeholder={fechaFinal}
+                        placeholder={now1}
                         name="time_Finish"
                         onChangeText={(text) => formik.setFieldValue("time_Finish", text)}
                         errorMessage={formik.errors.time_Finish}
-                        value={fechaFinal}
+                        value={now1}
                     />
                 </View>
                 <View style={styles.docente}>
@@ -157,13 +167,16 @@ export default function ReportScreen({ route }) {
                 </View>
 
                 <View style={styles.area}>
-                    <Button
-                        title={fechaFinal ? "Registrar" : "Regresar al escaner"}
-                        onPress={fechaFinal ? formik.handleSubmit :() =>  navigation.navigate("scannerS")}
-                        loading={formik.isSubmitting}
-                        buttonStyle={[styles.button]}
-                    />
-                </View>
+                {showScanButton ? (
+                    <TouchableOpacity onPress={SegundoEscaneo} style={styles.button}>
+                        <Text style={styles.buttonText}>Escanear salida</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity onPress={formik.handleSubmit} style={styles.button}>
+                        <Text style={styles.buttonText}>Enviar reporte</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
             </View>
         </ScrollView>
     )
@@ -334,5 +347,12 @@ const styles = StyleSheet.create({
         position: 'absolute',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        top: 10,
     },
 })
