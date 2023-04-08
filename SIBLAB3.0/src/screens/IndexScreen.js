@@ -7,7 +7,8 @@ import Loading from "../components/common/Loading"
 import LoginScreen from "./LoginScreen";
 import { getDocentes, getReport } from "../services/GeneralService";
 import { AuthContext } from "../components/common/auth/AuthContext";
-export default function IndexScreen() {
+export default function IndexScreen({ route }) {
+    const values = route.params;
     const [loading, setLoading] = useState(true);
     const [sesion, setSesion] = useState(null);
     const [history, setHistory] = useState([])
@@ -16,35 +17,38 @@ export default function IndexScreen() {
     const { user } = useContext(AuthContext);
 
     useEffect(() => {
+        const getHistory = async () => {
+            const respponse = await getReport();
+            const historyFiltrado = respponse.filter(his => his.user.id == userD.id)
+            setHistory(historyFiltrado)
+        }
+        const getDocente = async () => {
+            const response = await getDocentes();
+            setDocente(response);
+        }
+        getHistory();
+        getDocente();
+        setLoading(false)
+    }, [user, values])
+
+    useEffect(() => {
         const getSession = async () => {
             const userData = await AsyncStorage.getItem("user")
             setSesion(JSON.parse(userData) ? true : false)
             setUser(JSON.parse(userData))
-            setLoading(false)
         }
         getSession()
-        getHistory();
-        getDocente();
-
+        setLoading(false)
     }, [user])
 
-    const getHistory = async () => {
-        const respponse = await getReport();
-        const historyFiltrado = respponse.filter(his => his.user.id == userD.id)
-        setHistory(historyFiltrado)
-    }
-    const getDocente = async () => {
-        const response = await getDocentes();
-        setDocente(response);
-    }
 
 
 
     return (
         loading ? <Loading visible={true} text={"Validando Sesion"} /> : user ?
         <View style={styles.container}>
+            <ImageBackground source={require('../assets/img/fondo.png')} resizeMode="cover" style={styles.image}></ImageBackground>
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-                <ImageBackground source={require('../assets/img/fondo.png')} resizeMode="cover" style={styles.image}></ImageBackground>
                 <Text style={styles.title}>Historial</Text>
                 <View style={styles.content}>
                     {history.map(histo => {
@@ -61,7 +65,7 @@ export default function IndexScreen() {
                                     <Text>Laboratorio: {histo.machine.laboratory.name}</Text>
                                     <Text>Docente: {docenteName}</Text>
                                     <Text>Hora de inicio: {new Date(histo.time_Register).toLocaleString("es-MX", {
-                                        timeZone: "America/Mexico_City",
+                                        timeZone: "America/Bogota",
                                         hour12: false,
                                         year: "numeric",
                                         month: "2-digit",
@@ -71,7 +75,7 @@ export default function IndexScreen() {
                                         second: "2-digit",
                                     }).substring(11, 19).replace('T', ' ')}</Text>
                                     <Text>Hora final:  {new Date(histo.time_Finish).toLocaleString("es-MX", {
-                                        timeZone: "America/Mexico_City",
+                                        timeZone: "America/Bogota",
                                         hour12: false,
                                         year: "numeric",
                                         month: "2-digit",
@@ -108,7 +112,7 @@ const styles = StyleSheet.create({
     },
     card: {
         backgroundColor: '#D9D9D9',
-        width: 360,
+        width: 340,
         height: 130,
         borderRadius: 10,
         flexDirection: 'row',
@@ -120,7 +124,8 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         alignItems: 'center',
         justifyContent: 'center',
-        alignContent: 'space-between'
+        alignContent: 'space-between',
+        left : 30
     },
     title: {
         textAlign: 'center',

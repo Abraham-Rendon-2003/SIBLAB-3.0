@@ -7,11 +7,9 @@ export default function QRScannerI(props) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [text, setText] = useState('');
-  const [computer, setComputer] = useState("");
+  const [fechaInicio, setFechaInicio] = useState('');
   const navigation = useNavigation();
-  const [fechaInicio, setFechaInicio] = useState(null);
-  const [fechaF, setFechaF] = useState(null);
-  const [segundoEscaneoRealizado, setSegundoEscaneoRealizado] = useState(false);
+
 
 
   const askForCameraPermission = async () => {
@@ -38,15 +36,6 @@ export default function QRScannerI(props) {
     const parts = horaMx.split(/[\/ :]/);
     const now = parts[2] + "-" + parts[1] + "-" + parts[0] + " " + parts[3] + ":" + parts[4] + ":" + parts[5];
     setFechaInicio(now);
-    
-
-    if (fechaInicio && !segundoEscaneoRealizado) {
-      setFechaF(now);
-      setSegundoEscaneoRealizado(false);
-    } else {
-      setFechaInicio(now);
-    }
-
     setText(data);
     console.log('Type: ' + type + '\nData: ' + data);
     navigation.navigate('reports', { data, now });

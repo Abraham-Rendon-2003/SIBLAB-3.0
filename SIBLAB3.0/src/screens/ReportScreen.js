@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView } from 'react-native'
 import { Picker } from '@react-native-picker/picker';
 import { useFormik } from "formik";
-import { Button, Input } from "react-native-elements";
+import { Icon } from "react-native-elements";
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { CreateReport } from "../services/GeneralService";
@@ -16,7 +16,7 @@ export default function ReportScreen({ route }) {
     const navigation = useNavigation();
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(false);
-    
+
     const SegundoEscaneo = () => {
         navigation.navigate('scannerF', { now: now });
     }
@@ -57,36 +57,40 @@ export default function ReportScreen({ route }) {
         formik.setValues({
             info: "",
             id_teacher: 0,
-            time_Register: now ?now : "",
-            time_Finish: now1 ? now1 : "",
+            time_Register: now ? now : "",
+            now1: now1 ? now1 : "",
         })
-    }, [data])
+    }, [data, now, now1])
     const formik = useFormik({
         initialValues: {
             info: "",
             id_teacher: 0,
             time_Register: "",
-            time_Finish: now1 ? now1 : "",
+            time_Finish: "",
         },
         onSubmit: async (values) => {
             console.log("values report", values)
-            const response = await CreateReport({ values, data, userData })
-            response.data.message === "Ok" ? alert("Registrado") : alert("Error al crear el reporte")
+            const response = await CreateReport({ values, data, userData, now1 })
+            response.data.message === "Ok" ? (alert("Registrado") || navigation.navigate("indexS", values)) : alert("Error al crear el reporte")
             console.log("Respuesta", response)
+            navigation.navigate('indexS');
         }
     });
 
     useEffect(() => {
         if (now1) {
-          setShowScanButton(false);
+            setShowScanButton(false);
         }
-      }, [now1]);
+    }, [now1]);
 
 
     return (
         <ScrollView contentContainerStyle={styles.scrollview}>
-            <Text style={styles.title}>Registrar reporte</Text>
+
             <View style={styles.container}>
+                <View>
+                    <Icon type="material-comunity" name="laptop" size={130} style={styles.computer} />
+                </View>
                 <View style={styles.marca}>
                     <Text style={styles.texto}>Nombre</Text>
                 </View>
@@ -127,7 +131,7 @@ export default function ReportScreen({ route }) {
                         placeholder={now1}
                         name="time_Finish"
                         onChangeText={(text) => formik.setFieldValue("time_Finish", text)}
-                        errorMessage={formik.errors.time_Finish}
+                        errorMessage={formik.errors.now1}
                         value={now1}
                     />
                 </View>
@@ -167,16 +171,16 @@ export default function ReportScreen({ route }) {
                 </View>
 
                 <View style={styles.area}>
-                {showScanButton ? (
-                    <TouchableOpacity onPress={SegundoEscaneo} style={styles.button}>
-                        <Text style={styles.buttonText}>Escanear salida</Text>
-                    </TouchableOpacity>
-                ) : (
-                    <TouchableOpacity onPress={formik.handleSubmit} style={styles.button}>
-                        <Text style={styles.buttonText}>Enviar reporte</Text>
-                    </TouchableOpacity>
-                )}
-            </View>
+                    {showScanButton ? (
+                        <TouchableOpacity onPress={SegundoEscaneo} style={styles.button}>
+                            <Text style={styles.buttonText}>Escanear salida</Text>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity onPress={formik.handleSubmit} style={styles.button}>
+                            <Text style={styles.buttonText}>Enviar reporte</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
         </ScrollView>
     )
@@ -354,5 +358,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         top: 10,
+    },
+    computer: {
+        width: 100,
+        height: 100,
+        top: 50,
+        left: 30,
+        position: 'absolute',
     },
 })
