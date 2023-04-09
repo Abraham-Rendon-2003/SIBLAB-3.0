@@ -23,12 +23,11 @@ export default function ReportScreen({ route }) {
 
     const selectTeacher = async () => {
         try {
-            const response = await axios.get('http://192.168.0.103:8080/api-siblab/user/', {
+            const response = await axios.get('http://192.168.1.74:8080/api-siblab/user/', {
                 withCredentials: true,
             });
             const docenteFiltro = response.data.data;
             const filterTeacter = docenteFiltro.filter(docente => docente.role === 'Teacher');
-            console.log("Filtro d", filterTeacter)
             setTeachers(filterTeacter);
         } catch (error) {
             console.error("ERROR t", error);
@@ -38,7 +37,7 @@ export default function ReportScreen({ route }) {
     useEffect(() => {
         const getComputer = async () => {
             try {
-                const response = await axios.get(`http://192.168.0.103:8080/api-siblab/machine/${data}`, { withCredentials: true })
+                const response = await axios.get(`http://192.168.1.74:8080/api-siblab/machine/${data}`, { withCredentials: true })
                 setComputer(response.data.data)
 
             } catch (error) {
@@ -50,7 +49,6 @@ export default function ReportScreen({ route }) {
     useEffect(() => {
         const getSession = async () => {
             const userData = await AsyncStorage.getItem("user")
-            console.log("user", userData)
             setUserData(JSON.parse(userData))
         }
         getSession()
@@ -58,7 +56,7 @@ export default function ReportScreen({ route }) {
             info: "",
             id_teacher: 0,
             time_Register: now ? now : "",
-            now1: now1 ? now1 : "",
+            time_Finish: now1 ? now1 : "",
         })
     }, [data, now, now1])
     const formik = useFormik({
@@ -69,10 +67,8 @@ export default function ReportScreen({ route }) {
             time_Finish: "",
         },
         onSubmit: async (values) => {
-            console.log("values report", values)
-            const response = await CreateReport({ values, data, userData, now1 })
+            const response = await CreateReport({ values, data, userData })
             response.data.message === "Ok" ? (alert("Registrado") || navigation.navigate("indexS", values)) : alert("Error al crear el reporte")
-            console.log("Respuesta", response)
             navigation.navigate('indexS');
         }
     });

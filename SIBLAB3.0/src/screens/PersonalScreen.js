@@ -12,27 +12,28 @@ export default function PersonalScreen() {
 
   const [userData, setUserData] = useState(null);
   const navigation = useNavigation();
-  const [loading, setLoading] = useState(false);
-  const { logout } = useContext(AuthContext);
-
+  const [loading, setLoading] = useState(true);
+  const { logout ,user} = useContext(AuthContext);
   useEffect(() => {
     const getSession = async () => {
       const userData = await AsyncStorage.getItem("user")
       console.log("user",userData)
       setUserData(JSON.parse(userData))
     }
+    setLoading(false);
     getSession()
-  }, []);
+  }, [user]);
 
   const cerrarSesion = async () => {
-    setLoading(true);
     const user = await AsyncStorage.removeItem('user')
     console.log("elimniado", user)
     logout();
     setLoading(false);
     navigation.navigate("index", { Screen: "indexS" })
   }
+
   return (
+    loading?  <Loading visible={true} text={"Validando Sesion"} /> :
     <View style={styles.container}>
       <ImageBackground source={require('../assets/img/fondo.png')} resizeMode="cover" style={styles.image}></ImageBackground>
       <Text style={styles.title}>Información Personal</Text>
@@ -58,6 +59,30 @@ export default function PersonalScreen() {
           <TextInput
             style={styles.input}
           value={userData?.username|| userData?.email}
+            editable={false}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Matricula</Text>
+          <TextInput
+            style={styles.input}
+          value={userData?.code|| userData?.code}
+            editable={false}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Grupo</Text>
+          <TextInput
+            style={styles.input}
+          value={userData?.classroom.name|| userData?.classroom.name}
+            editable={false}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Carrera</Text>
+          <TextInput
+            style={styles.input}
+          value={userData?.classroom.career|| userData?.classroom.career}
             editable={false}
           />
         </View>
@@ -99,11 +124,11 @@ const styles = StyleSheet.create({
   input: {
     width: 300,
     padding: 12,
-    marginBottom: 16,
+    marginBottom: 13,
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 10,
-    fontSize: 18,
+    fontSize: 15,
     color: '#fff'
   },
   inputContainer: {
@@ -128,7 +153,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderTopColor: "#e3e3e3",
     borderBottomColor: "#e3e3e3",
-    marginTop: 30,
+    marginTop: 10,
     paddingVertical: 10
   },
   titleBtn: {

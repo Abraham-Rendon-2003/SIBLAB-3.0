@@ -29,7 +29,7 @@ export default function IndexScreen({ route }) {
         getHistory();
         getDocente();
         setLoading(false)
-    }, [user, values])
+    }, [userD, values])
 
     useEffect(() => {
         const getSession = async () => {
@@ -38,10 +38,8 @@ export default function IndexScreen({ route }) {
             setUser(JSON.parse(userData))
         }
         getSession()
-        setLoading(false)
+
     }, [user])
-
-
 
 
     return (
@@ -53,15 +51,15 @@ export default function IndexScreen({ route }) {
                 <View style={styles.content}>
                     {history.map(histo => {
                         const docentes = docente.find(doc => doc.id === histo.id_teacher);
-                        const docenteName = docentes ? docentes.name : '';
+                        const docenteName = docentes ? docentes.name +" "+ docentes.surname : '';
                         return (
                             <View style={styles.card} key={histo.id}>
                                 <View>
-                                    <Icon type="material-comunity" name="laptop" size={130} style={{ marginLeft: 5 }} />
+                                    <Icon type="material-comunity" name="laptop" size={120} style={{ marginLeft: 5 }} />
                                 </View>
                                 <View style={styles.info}>
-                                    <Text>{histo.machine.name}</Text>
-                                    <Text>Docencia:{histo.machine.laboratory.building.name}</Text>
+                                    <Text>Equipo: {histo.machine.name}</Text>
+                                    <Text>Docencia: {histo.machine.laboratory.building.name}</Text>
                                     <Text>Laboratorio: {histo.machine.laboratory.name}</Text>
                                     <Text>Docente: {docenteName}</Text>
                                     <Text>Hora de inicio: {new Date(histo.time_Register).toLocaleString("es-MX", {
@@ -112,20 +110,28 @@ const styles = StyleSheet.create({
     },
     card: {
         backgroundColor: '#D9D9D9',
-        width: 340,
+        width: 360,
         height: 130,
         borderRadius: 10,
         flexDirection: 'row',
-        alignContent: 'space-between',
+        alignItems: 'center',
         marginBottom: 10
     },
     info: {
         fontSize: 16,
         fontWeight: "bold",
-        alignItems: 'center',
-        justifyContent: 'center',
         alignContent: 'space-between',
-        left : 30
+        position:"relative",
+        marginLeft:10,
+        flex:1
+    },
+   
+    image: {
+        width: '100%',
+        height: '100%',
+        marginBottom: 20,
+        alignContent: 'space-between',
+        position: 'absolute',
     },
     title: {
         textAlign: 'center',
@@ -134,11 +140,5 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         color: '#fff',
         top: 40
-    },
-    image: {
-        width: '100%',
-        height: '100%',
-        marginBottom: 20,
-        position: 'absolute',
     },
 })

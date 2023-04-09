@@ -85,14 +85,8 @@ export default function QrScannerF({route}) {
         <BarCodeScanner
 
           onBarCodeScanned={scanned ? undefined : handleBarCodeScanner}
-          style={{ height: 250, width: 300 }}
+          style={{ height: 350, width: 350 }}
         />
-        {/* <QRCodeScanner
-        onRead={handleQRScanned}
-        showMarker={true}
-        reactivate={true}
-        reactivateTimeout={5000}
-      /> */}
       </View>
     </View>
   );
@@ -108,6 +102,7 @@ const styles = StyleSheet.create({
   barcodebox: {
     alignItems: "center",
     justifyContent: "center",
+    top:150
   },
   mainText: {
     fontSize: 16,

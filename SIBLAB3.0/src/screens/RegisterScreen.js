@@ -66,7 +66,7 @@ export default function RegisterScreen() {
   };
   const fetchGroups = async () => {
     try {
-      const response = await axios.get('http://192.168.0.103:8080/api-siblab/classroom/');
+      const response = await axios.get('http://192.168.1.74:8080/api-siblab/classroom/');
       setGroups(response.data.data);
     } catch (error) {
       console.error(error);
