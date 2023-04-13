@@ -1,42 +1,56 @@
-import React, { useState, useEffect,useContext } from "react";
-import { StyleSheet, Text, View, TextInput, ImageBackground, ActivityIndicator } from "react-native";
-import axios from "axios";
-import { Button } from "react-native-elements";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { StyleSheet, Text, View, TextInput, ImageBackground, StatusBar, TouchableOpacity, Animated } from "react-native";
 import Loading from "../components/common/Loading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from '@react-navigation/native'
 import { AuthContext } from "../components/common/auth/AuthContext";
-
+import { useIsFocused } from '@react-navigation/native';
 
 export default function PersonalScreen() {
-
-  const [userData, setUserData] = useState(null);
   const navigation = useNavigation();
-  const [loading, setLoading] = useState(true);
-  const { logout ,user} = useContext(AuthContext);
+  const { logout, userLoaded, setUserLoaded, user } = useContext(AuthContext);
+  const [userData, setUserData] = useState(null)
+  const isFocused = useIsFocused();
+  const opacity = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     const getSession = async () => {
       const userData = await AsyncStorage.getItem("user")
       console.log("user",userData)
       setUserData(JSON.parse(userData))
+      setUserLoaded(true);
     }
-    setLoading(false);
     getSession()
   }, [user]);
+  useEffect(() => {
+    if (isFocused) {
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      opacity.setValue(0);
+    }
+  }, [isFocused, opacity]);
+
 
   const cerrarSesion = async () => {
-    const user = await AsyncStorage.removeItem('user')
-    console.log("elimniado", user)
-    logout();
-    setLoading(false);
-    navigation.navigate("index", { Screen: "indexS" })
+    await AsyncStorage.removeItem('user')
+   await logout();
   }
-
+  useEffect(() => {
+    if (!user) {
+      navigation.navigate('index', user)
+    }
+  }, [user]);
+  if (!userLoaded) { return <Loading visible={true} text={"Cargando informacion"} /> }
   return (
-    loading?  <Loading visible={true} text={"Validando Sesion"} /> :
     <View style={styles.container}>
+
       <ImageBackground source={require('../assets/img/fondo.png')} resizeMode="cover" style={styles.image}></ImageBackground>
-      <Text style={styles.title}>Información Personal</Text>
+            <Animated.View style={{ opacity,position: "absolute",    width: "100%",  height: "100%",}}>
+        <Text style={styles.title}>Información Personal</Text>
       <View style={styles.content}>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Nombre</Text>
@@ -58,7 +72,7 @@ export default function PersonalScreen() {
           <Text style={styles.label}>Correo</Text>
           <TextInput
             style={styles.input}
-          value={userData?.username|| userData?.email}
+            value={userData?.username || userData?.email}
             editable={false}
           />
         </View>
@@ -66,7 +80,7 @@ export default function PersonalScreen() {
           <Text style={styles.label}>Matricula</Text>
           <TextInput
             style={styles.input}
-          value={userData?.code|| userData?.code}
+            value={userData?.code || userData?.code}
             editable={false}
           />
         </View>
@@ -74,7 +88,7 @@ export default function PersonalScreen() {
           <Text style={styles.label}>Grupo</Text>
           <TextInput
             style={styles.input}
-          value={userData?.classroom.name|| userData?.classroom.name}
+            value={userData?.classroom.name || userData?.classroom.name}
             editable={false}
           />
         </View>
@@ -82,18 +96,17 @@ export default function PersonalScreen() {
           <Text style={styles.label}>Carrera</Text>
           <TextInput
             style={styles.input}
-          value={userData?.classroom.career|| userData?.classroom.career}
+            value={userData?.classroom.career || userData?.classroom.career}
             editable={false}
           />
         </View>
-        <Button
-          title="Cerrar Sesion"
-          onPress={cerrarSesion}
-          buttonStyle={styles.button}
-          titleStyle={styles.titleBtn} />
-                {loading && <ActivityIndicator />}
-
+        <TouchableOpacity style={styles.button} onPress={cerrarSesion}>
+          <Text style={styles.buttonText}>Cerrar sesion</Text>
+        </TouchableOpacity>
+      
+        <StatusBar barStyle={'light-content'} />
       </View>
+      </Animated.View>
 
     </View>
   );
@@ -101,9 +114,28 @@ export default function PersonalScreen() {
 
 
 const styles = StyleSheet.create({
+
+button: {
+    marginBottom: 20,
+    height: 50,
+    width: 200,
+    paddingLeft: 10,
+    paddingRight: 10,
+    backgroundColor: "transparent",
+    borderColor: "white",
+    borderRadius: 10,
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    top: 15,
+},
+buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    },
   container: {
     flex: 1,
-    backgroundColor: "#0968ED",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -111,7 +143,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    alignContent: 'space-between'
+    margin: 10,
   },
   title: {
     textAlign: 'center',
@@ -119,21 +151,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 10,
     color: '#fff',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
     top: 40
-},
+
+  },
   input: {
     width: 300,
-    padding: 12,
-    marginBottom: 13,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    padding: 10,
+    marginBottom: 10,
+    borderWidth: 0.5,
+    borderColor: '#fff',
     borderRadius: 10,
-    fontSize: 15,
-    color: '#fff'
+    fontSize: 16,
+    color: '#EFEFEF',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1
   },
-  inputContainer: {
-    width: '100%',
-  },
+
   label: {
     fontSize: 16,
     marginBottom: 8,
@@ -148,15 +189,24 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   button: {
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderTopColor: "#e3e3e3",
-    borderBottomColor: "#e3e3e3",
-    marginTop: 10,
-    paddingVertical: 10
+    marginTop: 18,
+    borderColor: "white",
+    borderWidth: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  titleBtn: {
-    color: "#0D5BD7"
+  text: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   }
 })

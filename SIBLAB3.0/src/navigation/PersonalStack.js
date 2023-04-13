@@ -5,6 +5,7 @@ import PersonalScreen from '../screens/PersonalScreen'
 const Stack = createNativeStackNavigator()
 
 export default function  PersonalStack(){
+
     return(
         <Stack.Navigator screenOptions={({route}) => ({
             headerShown: false,

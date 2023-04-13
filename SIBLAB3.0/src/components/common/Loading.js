@@ -22,26 +22,23 @@ Loading.defaultProps = {
 }
 
 const styles = StyleSheet.create({
-  overlay:{
-    height:100,
-    width:200,
-    backgroundColor: "#fff",
-    borderColor: "#0D5BD7",
-    borderWidth: 2,
-    borderRadius:8
-  },viewLoad:{
-    alignItems: "center",
-    justifyContent: "center"
 
+  overlay:{
+    backgroundColor: 'white',
+  paddingVertical: 20,
+  paddingHorizontal: 40,
+  borderRadius: 10,
+  alignItems: 'center',
+  justifyContent: 'center',
   },
   text:{
-    color: "#0D5BD7",
-    textTransform: "uppercase",
-    marginVertical: 10
+    marginTop: 10,
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'semibold',
+    textTransform: 'uppercase',
   }
 
 })
 
 
-
-//~~~~~~~~~~~~  BY ULISES GARCIA  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

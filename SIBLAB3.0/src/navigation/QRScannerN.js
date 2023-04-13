@@ -2,7 +2,6 @@ import React from "react"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import QRScanner from "../screens/QRScanner"
 import ReportScreen from "../screens/ReportScreen"
-import QrScanerFScreen from "../screens/QrScanerFScreen"
 import QrScannerF from "../components/common/QrScannerF"
 
 

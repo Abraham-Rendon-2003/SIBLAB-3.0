@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { StyleSheet, Text, View, Button, TouchableOpacity, ImageBackground, StatusBar } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useNavigation } from '@react-navigation/native';
 
@@ -40,8 +40,6 @@ export default function QRScannerI(props) {
     console.log('Type: ' + type + '\nData: ' + data);
     navigation.navigate('reports', { data, now });
   };
-
-
   if (hasPermission === null) {
     return (
       <View style={styles.container}>
@@ -49,7 +47,10 @@ export default function QRScannerI(props) {
       </View>
     );
   }
-
+  const resetScan = () => {
+    setScanned(false);
+    setFechaInicio("")
+  };
   if (hasPermission === false) {
     return (
       <View style={styles.container}>
@@ -58,13 +59,13 @@ export default function QRScannerI(props) {
         <Text style={styles.mainText}>{text}</Text>
         {scanned && (
           <Button
-          title={'Escanear nuevamente'}
-          onPress={() => {
-            setScanned(false);
-            setSegundoEscaneoRealizado(false);
-          }}
-          color='tomato'
-        />
+            title={'Escanear nuevamente'}
+            onPress={() => {
+              setScanned(false);
+              setSegundoEscaneoRealizado(false);
+            }}
+            color='tomato'
+          />
         )}
       </View>
     );
@@ -72,27 +73,27 @@ export default function QRScannerI(props) {
 
 
   return (
-    <View>
-      <View style={styles.barcodebox}>
+    <View style={styles.barcodebox}>
+      {scanned ? (
+        <View>
+          <TouchableOpacity style={styles.button} onPress={resetScan}>
+            <Text style={styles.text}>Escanea tu hora de inicio</Text>
+          </TouchableOpacity>
+          <StatusBar barStyle={'light-content'} />
+        </View>
+      ) : (
         <BarCodeScanner
-
           onBarCodeScanned={scanned ? undefined : handleBarCodeScanner}
           style={{ height: 350, width: 350 }}
         />
-        {/* <QRCodeScanner
-        onRead={handleQRScanned}
-        showMarker={true}
-        reactivate={true}
-        reactivateTimeout={5000}
-      /> */}
-      </View>
+      )}
+
     </View>
   );
 }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -103,5 +104,25 @@ const styles = StyleSheet.create({
   mainText: {
     fontSize: 16,
     margin: 20,
+  },
+  button: {
+    backgroundColor: '#0B3C5D',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+    shadowOffset: { width: 2, height: 2 },
+    shadowColor: '#333',
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+  },
+
+  text: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
 });

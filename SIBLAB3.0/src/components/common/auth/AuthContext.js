@@ -6,8 +6,10 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [userLoaded, setUserLoaded] = useState(false);
+    const [userI, setUserI] = useState(null)
 
-  useEffect(() => {
+    useEffect(() => {
     const getSession = async () => {
       const userData = await AsyncStorage.getItem('user');
       setUser(JSON.parse(userData) ? true : false);
@@ -15,18 +17,18 @@ export const AuthProvider = ({ children }) => {
     getSession();
   }, []);
 
+
   const login = async (userData) => {
     try {
       const userInfo = await getUser(userData.id);
       AsyncStorage.setItem('user', JSON.stringify(userInfo)).then(() => {
         setUser(true);
+        setUserI(userInfo);
       });
     } catch (error) {
-      
+      console.log(error);
     }
-
   };
-
   const logout = () => {
     AsyncStorage.removeItem('user').then(() => {
       setUser(false);
@@ -34,7 +36,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout}}>
+    <AuthContext.Provider value={{ user, login, logout,userLoaded,setUserLoaded }}>
       {children}
     </AuthContext.Provider>
   );

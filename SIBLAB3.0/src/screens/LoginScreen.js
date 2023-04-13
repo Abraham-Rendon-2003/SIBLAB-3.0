@@ -1,10 +1,24 @@
-import { View, Text, StyleSheet, ImageBackground } from 'react-native'
-import React from "react";
-import { Button, Image } from "react-native-elements";
-import { useNavigation } from "@react-navigation/native";
+import { View, Text, StyleSheet, ImageBackground,Animated } from 'react-native'
+import React, { useEffect, useRef } from "react";
+import { Button, Image} from "react-native-elements";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 
 export default function LoginScreen() {
     const navigation = useNavigation()
+    const isFocused = useIsFocused();
+    const opacity = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+      if (isFocused) {
+        Animated.timing(opacity, {
+          toValue: 2,
+          duration: 1000,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        opacity.setValue(0);
+      }
+    }, [isFocused, opacity]);
+
     const Register = () => {
         navigation.navigate("registerS")
     }
@@ -15,6 +29,8 @@ export default function LoginScreen() {
     return (
         <View style={styles.container}>
             <ImageBackground source={require('../assets/img/fondo.png')} resizeMode="cover" style={styles.image}></ImageBackground>
+            <Animated.View style={{ opacity }}>
+
             <Image source={require('../assets/img/libro.png')} style={styles.logo}/>
             <Image source={require('../assets/img/FotoPerfil.png')} style={styles.profile}/>
 
@@ -35,6 +51,7 @@ export default function LoginScreen() {
                 <Text style={styles.siblab}>SIBLAB</Text>
 
             </View>
+            </Animated.View>
 
         </View>
     )
@@ -80,6 +97,7 @@ const styles = StyleSheet.create({
         height: 120,
         marginBottom: 20,
         top: -8,
+        marginLeft:55
     },
     btnR: {
         justifyContent: 'center',
@@ -98,5 +116,7 @@ const styles = StyleSheet.create({
         width: 160,
         height: 160,
         marginBottom: 35,
+        marginLeft:35
+
     },
 });

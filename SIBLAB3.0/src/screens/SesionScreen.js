@@ -1,18 +1,31 @@
-import React, { useState, useContext, useEffect } from "react"
-import { View, StyleSheet, ImageBackground, StatusBar } from "react-native"
-import { useNavigation } from "@react-navigation/native"
+import React, { useState, useContext, useEffect, useRef } from "react"
+import { View, StyleSheet, ImageBackground, StatusBar,Animated } from "react-native"
+import { useIsFocused, useNavigation } from "@react-navigation/native"
 import { Image, Button, Text, Icon, Input, } from "react-native-elements"
 import { AuthContext } from "../components/common/auth/AuthContext";
 import * as Yup from "yup";
 import { useFormik } from 'formik';
 import { LoginService } from "../services/GeneralService";
+import { Toast } from "react-native-toast-message/lib/src/Toast";
 
 export default function SesionScreen() {
 
   const navigation = useNavigation()
   const [password, setPassword] = useState(false);
   const { login, user } = useContext(AuthContext);
-
+  const isFocused = useIsFocused();
+    const opacity = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+      if (isFocused) {
+        Animated.timing(opacity, {
+          toValue: 2,
+          duration: 1000,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        opacity.setValue(0);
+      }
+    }, [isFocused, opacity]);
   const formik = useFormik({
     initialValues: {
       username: "",
@@ -28,9 +41,10 @@ export default function SesionScreen() {
     onSubmit: async (values) => {
       console.log("Values", values);
       const response = await LoginService(values);
-      login(response)
       console.log("respuesta", response)
-    }
+      response.message === "Credenciales inv�lidas" ? Toast.show({type:"error", position:"bottom",text1:"Usuario o contraseña incorrectos"})
+: response.role != "Student" ? Toast.show({type:"error", position:"bottom",text1:"Esta aplicacion es solo para alumnos de la utez!"})
+       : login(response)    }
   })
 
   useEffect(() => {
@@ -44,6 +58,7 @@ export default function SesionScreen() {
   return (
     <View style={styles.container}>
       <ImageBackground source={require('../assets/img/fondo.png')} resizeMode="cover" style={styles.image}></ImageBackground>
+      <Animated.View style={{ opacity }}>
       <Image source={require('../assets/img/libro.png')} style={styles.logo} />
       <Image source={require('../assets/img/FotoPerfil.png')} style={styles.profile} />
       <Input
@@ -85,9 +100,10 @@ export default function SesionScreen() {
         title="Iniciar Sesion"
         onPress={formik.handleSubmit}
         loading={formik.isSubmitting} />
-      {/* {loading && <ActivityIndicator />} */}
       <StatusBar barStyle={'light-content'} />
       <Text style={styles.text}>SIBLAB</Text>
+      </Animated.View>
+
     </View>
   )
 }
@@ -113,13 +129,15 @@ const styles = StyleSheet.create({
   profile: {
     width: 160,
     height: 160,
-    marginBottom: 35
+    marginBottom: 35,
+    marginLeft:65
   },
   logo: {
     width: 120,
     height: 120,
     marginBottom: 20,
     top: -8,
+    marginLeft:85
   },
   image: {
     width: '100%',
@@ -131,18 +149,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderRadius: 8,
     height: 56,
+    width:233,
     borderWidth: 2,
     borderColor: '#fff',
     color: '#fff',
   },
   containerBtn: {
-    width: "50%",
+    marginLeft:30,
     marginTop: 50
   },
   text: {
     color: '#fff',
     fontSize: 20,
-    top: 70,
+    top: 60,
+    marginLeft:115
   },
   icon: {
     color: "#c1c1c1"

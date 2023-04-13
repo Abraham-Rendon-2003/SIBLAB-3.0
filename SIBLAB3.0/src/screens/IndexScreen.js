@@ -1,12 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useState, useContext } from "react";
-import { StyleSheet, Text, View, ImageBackground } from "react-native";
+import React, { useEffect, useState, useContext, useRef } from "react";
+import { StyleSheet, Text, View, ImageBackground,Animated } from "react-native";
 import { Icon } from "react-native-elements";
 import { ScrollView } from "react-native-gesture-handler";
 import Loading from "../components/common/Loading"
 import LoginScreen from "./LoginScreen";
 import { getDocentes, getReport } from "../services/GeneralService";
 import { AuthContext } from "../components/common/auth/AuthContext";
+import { useIsFocused } from "@react-navigation/native";
 export default function IndexScreen({ route }) {
     const values = route.params;
     const [loading, setLoading] = useState(true);
@@ -15,41 +16,54 @@ export default function IndexScreen({ route }) {
     const [userD, setUser] = useState("")
     const [docente, setDocente] = useState([])
     const { user } = useContext(AuthContext);
+ const isFocused = useIsFocused();
+  const opacity = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+   
+    getHistory();
+    getDocente();
+    setLoading(false)
+}, [userD, values])
+const getHistory = async () => {
+    const respponse = await getReport();       
+    const historyFiltrado = respponse.filter(his => his.user && his.user.id && his.user.id === userD.id);
+    setHistory(historyFiltrado.reverse());
+}
+const getDocente = async () => {
+    const response = await getDocentes();
+    setDocente(response);
+}
+useEffect(() => {
+    const getSession = async () => {
+        const userData = await AsyncStorage.getItem("user")
+        setSesion(JSON.parse(userData) ? true : false)
+        setUser(JSON.parse(userData))
+    }
+    getSession()
 
-    useEffect(() => {
-        const getHistory = async () => {
-            const respponse = await getReport();
-            const historyFiltrado = respponse.filter(his => his.user.id == userD.id)
-            setHistory(historyFiltrado)
-        }
-        const getDocente = async () => {
-            const response = await getDocentes();
-            setDocente(response);
-        }
-        getHistory();
-        getDocente();
-        setLoading(false)
-    }, [userD, values])
-
-    useEffect(() => {
-        const getSession = async () => {
-            const userData = await AsyncStorage.getItem("user")
-            setSesion(JSON.parse(userData) ? true : false)
-            setUser(JSON.parse(userData))
-        }
-        getSession()
-
-    }, [user])
+}, [user])
+ useEffect(() => {
+    if (isFocused) {
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      opacity.setValue(0);
+    }
+  }, [isFocused, opacity]);
 
 
     return (
         loading ? <Loading visible={true} text={"Validando Sesion"} /> : user ?
         <View style={styles.container}>
             <ImageBackground source={require('../assets/img/fondo.png')} resizeMode="cover" style={styles.image}></ImageBackground>
+                        <Animated.View style={{ opacity,position: "absolute",    width: "100%",  height: "100%",}}>
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                 <Text style={styles.title}>Historial</Text>
                 <View style={styles.content}>
-                    {history.map(histo => {
+                {history.map(histo => {
                         const docentes = docente.find(doc => doc.id === histo.id_teacher);
                         const docenteName = docentes ? docentes.name +" "+ docentes.surname : '';
                         return (
@@ -89,6 +103,8 @@ export default function IndexScreen({ route }) {
 
                 </View>
             </ScrollView>
+                  </Animated.View>
+
             </View>
 
             : (<LoginScreen />)
@@ -135,10 +151,13 @@ const styles = StyleSheet.create({
     },
     title: {
         textAlign: 'center',
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginVertical: 10,
-        color: '#fff',
-        top: 40
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginVertical: 10,
+    color: '#fff',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    top: 40
     },
 })

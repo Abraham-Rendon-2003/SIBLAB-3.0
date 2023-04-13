@@ -19,13 +19,15 @@ export default function AppNavigation() {
 
   return user ? (
     <Tab.Navigator
+    
+  
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarActiveTintColor: "red",
+        tabBarActiveTintColor: "green",
         tabBarInactiveTintColor: "grey",
-
         tabBarIcon: ({ color, size }) => showIcon(route, color, size),
+        tabBarStyle:{backgroundColor:"#DCE1E3"}
       })}
     >
       <Tab.Screen component={QRScannerN} name="scanner" options={{ title: 'qr' }} />
@@ -34,11 +36,16 @@ export default function AppNavigation() {
     </Tab.Navigator>
   ) : (
     <Tab.Navigator
+    tabBarOptions={{
+      style: { backgroundColor: 'blue' },
+      
+    }}
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarShowLabel: false,
         tabBarActiveTintColor: "red",
         tabBarInactiveTintColor: "grey",
+        tabBarStyle:{backgroundColor:"#DCE1E3"},
 
         tabBarIcon: ({ color, size }) => showIcon(route, color, size),
       })}

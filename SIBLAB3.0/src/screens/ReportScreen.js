@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react"
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView } from 'react-native'
+import React, { useEffect, useRef, useState } from "react"
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, StatusBar } from 'react-native'
 import { Picker } from '@react-native-picker/picker';
 import { useFormik } from "formik";
 import { Icon } from "react-native-elements";
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { CreateReport } from "../services/GeneralService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { Toast } from "react-native-toast-message/lib/src/Toast";
 
 export default function ReportScreen({ route }) {
     const { data, now, now1 } = route.params;
@@ -15,30 +17,29 @@ export default function ReportScreen({ route }) {
     const [showScanButton, setShowScanButton] = useState(true);
     const navigation = useNavigation();
     const [userData, setUserData] = useState(null);
-    const [loading, setLoading] = useState(false);
-
+    const [loading, setLoading] = useState(false)
     const SegundoEscaneo = () => {
         navigation.navigate('scannerF', { now: now });
     }
 
     const selectTeacher = async () => {
         try {
-            const response = await axios.get('http://192.168.1.74:8080/api-siblab/user/', {
+            const response = await axios.get('http://192.168.137.11:8080/api-siblab/user/', {
                 withCredentials: true,
             });
             const docenteFiltro = response.data.data;
             const filterTeacter = docenteFiltro.filter(docente => docente.role === 'Teacher');
+            console.log("Filtro d", filterTeacter)
             setTeachers(filterTeacter);
         } catch (error) {
-            console.error("ERROR t", error);
         }
     }
 
     useEffect(() => {
         const getComputer = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.74:8080/api-siblab/machine/${data}`, { withCredentials: true })
-                setComputer(response.data.data)
+                const response = await axios.get(`http://192.168.137.11:8080/api-siblab/machine/${data}`, { withCredentials: true })
+                response.data.data.status === true ? setComputer(response.data.data) : navigation.goBack() || Toast.show({type:"error", position:"bottom",text1:"La computadora se encuentra desabilitada",text2:"Por favor usa una diferente!"})
 
             } catch (error) {
             }
@@ -49,6 +50,7 @@ export default function ReportScreen({ route }) {
     useEffect(() => {
         const getSession = async () => {
             const userData = await AsyncStorage.getItem("user")
+            console.log("user", userData)
             setUserData(JSON.parse(userData))
         }
         getSession()
@@ -59,6 +61,7 @@ export default function ReportScreen({ route }) {
             time_Finish: now1 ? now1 : "",
         })
     }, [data, now, now1])
+
     const formik = useFormik({
         initialValues: {
             info: "",
@@ -67,9 +70,10 @@ export default function ReportScreen({ route }) {
             time_Finish: "",
         },
         onSubmit: async (values) => {
-            const response = await CreateReport({ values, data, userData })
-            response.data.message === "Ok" ? (alert("Registrado") || navigation.navigate("indexS", values)) : alert("Error al crear el reporte")
-            navigation.navigate('indexS');
+            console.log("values report", values)
+            const response = await CreateReport({ values, data, userData, now1 })
+            response.data.message === "Ok" ? Toast.show({type:"success",position:"bottom",text1:"Registrado correctamente"}): Toast.show({type:"error",position:"bottom",text1:"Error al crear el reporte"})
+            navigation.navigate('indexS',values);
         }
     });
 
@@ -79,118 +83,186 @@ export default function ReportScreen({ route }) {
         }
     }, [now1]);
 
-
     return (
-        <ScrollView contentContainerStyle={styles.scrollview}>
+        <KeyboardAwareScrollView contentContainerStyle={styles.container}>
+            <ImageBackground source={require('../assets/img/fondo.png')} resizeMode="cover" style={styles.image}></ImageBackground>
 
-            <View style={styles.container}>
-                <View>
-                    <Icon type="material-comunity" name="laptop" size={130} style={styles.computer} />
+            <View style={styles.logoContainer}>
+                <Icon type="material-comunity" name="laptop" size={150} style={styles.logo} color="white"  />
+            </View>
+            <View style={styles.inputContainer}>
+                <View style={styles.inputWrapper}>
+                    <Text style={styles.label}>Nombre</Text>
+                    <TextInput style={styles.input} placeholder={computer.name} editable={false} value={computer.name && computer.name}/>
                 </View>
-                <View style={styles.marca}>
-                    <Text style={styles.texto}>Nombre</Text>
+                <View style={styles.inputWrapper}>
+                    <Text style={styles.label}>Marca</Text>
+                    <TextInput style={styles.input} placeholder={computer.brand} editable={false} value={computer.brand && computer.brand} />
                 </View>
-                <View style={styles.marca2}>
-                    <TextInput style={styles.texto} placeholder={computer.name}
-                    />
+                <View style={styles.inputWrapper}>
+                    <Text style={styles.label}>Ubicación</Text>
+                    <TextInput style={styles.input} placeholder={computer.laboratory && computer.laboratory.name} editable={false} value={computer.laboratory &&computer.laboratory.name} />
                 </View>
-                <View style={styles.Procesador}>
-                    <Text style={styles.texto}>Marca</Text>
-                </View>
-                <View style={styles.Procesador2}>
-                    <TextInput style={styles.texto} placeholder={computer.brand} />
-                </View>
-
-                <View style={styles.Ubicacion}>
-                    <Text style={styles.texto}>Ubicacion</Text>
-                </View>
-                <View style={styles.Ubicacion2}>
-                    <TextInput style={styles.texto} placeholder={computer.laboratory && computer.laboratory.name} />
-                </View>
-                <View style={styles.Horario}>
-                    <Text style={styles.texto}>Horario Inicio</Text>
-                </View>
-                <View style={styles.Horario2}>
-                    <TextInput style={styles.texto} placeholder={now}
+                <View style={styles.inputWrapper}>
+                    <Text style={styles.label}>Horario Inicio</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder={now}
                         name="time_Register"
                         onChangeText={(text) => formik.setFieldValue("time_Register", text)}
                         errorMessage={formik.errors.time_Register}
                         value={now}
+                        editable={false}
                     />
                 </View>
-                <View style={styles.HorarioF}>
-                    <Text style={styles.texto}>Horario Final</Text>
-                </View>
-                <View style={styles.Horario2F}>
+                <View style={styles.inputWrapper}>
+                    <Text style={styles.label}>Horario Final</Text>
                     <TextInput
-                        style={styles.texto}
+                        style={styles.input}
                         placeholder={now1}
                         name="time_Finish"
                         onChangeText={(text) => formik.setFieldValue("time_Finish", text)}
                         errorMessage={formik.errors.now1}
                         value={now1}
+                        editable={false}
                     />
                 </View>
-                <View style={styles.docente}>
-                    <Text style={styles.texto}>Docente</Text>
-                </View>
-                <Picker
-                    style={styles.picker}
-                    onValueChange={(itemValue) => {
-                        formik.setFieldValue("id_teacher", itemValue);
-                        console.log(formik.values.id_teacher);
-                    }}
-                    selectedValue={formik.values.id_teacher}
-                    errorMessage={formik.errors.id_teacher}
-                    prompt="Selecciona un profesor"
-                >
-                    {teachers.map((teacher) => {
-                        return (
-                            <Picker.Item label={teacher.name} value={teacher.id} key={teacher.id} />
-                        )
-                    })}
-                </Picker>
 
-                <View style={styles.reporte}>
+                <Text style={styles.label}>Docente</Text>
+                <View style={styles.picker}>
+                    <Picker
+                        style={styles.pickerItem} 
+                        onValueChange={(itemValue) => {
+                            formik.setFieldValue("id_teacher", itemValue);
+                            console.log(formik.values.id_teacher);
+                        }}
+                        selectedValue={formik.values.id_teacher}
+                        errorMessage={formik.errors.id_teacher}
+                        prompt="Selecciona un profesor"
+                    >
+                        {teachers.map((teacher) => {
+                            return (
+                                <Picker.Item label={teacher.name +" " + teacher.surname} value={teacher.id} key={teacher.id} />
+                            )
+                        })}
+                    </Picker>
+                </View>
+
+                <View style={styles.inputWrapper}>
+                    <Text style={styles.label}>Comentarios</Text>
                     <TextInput
-                        placeholder="Reporte"
-                        editable
+                            editable
                         multiline
                         numberOfLines={6}
                         maxLength={100}
-                        style={{ padding: 10 }}
+                        style={styles.textArea}
                         name="info"
                         onChangeText={(text) => formik.setFieldValue("info", text)}
                         errorMessage={formik.errors.info}
                         value={formik.values.info}
                     />
                 </View>
-
-                <View style={styles.area}>
-                    {showScanButton ? (
-                        <TouchableOpacity onPress={SegundoEscaneo} style={styles.button}>
-                            <Text style={styles.buttonText}>Escanear salida</Text>
-                        </TouchableOpacity>
-                    ) : (
-                        <TouchableOpacity onPress={formik.handleSubmit} style={styles.button}>
-                            <Text style={styles.buttonText}>Enviar reporte</Text>
-                        </TouchableOpacity>
-                    )}
-                </View>
             </View>
-        </ScrollView>
-    )
-}
+            <View style={styles.buttonContainer}>
+                {showScanButton ? (
+                    <View>
+                    <TouchableOpacity onPress={SegundoEscaneo} style={styles.button}>
+                        <Text style={styles.buttonText}>Escanear salida</Text>
+                    </TouchableOpacity>
+                    <StatusBar barStyle={'light-content'} />
+                    </View>
+                ) : (
+                    <View>
+                    <TouchableOpacity onPress={formik.handleSubmit} style={styles.button}>
+                        <Text style={styles.buttonText}>Enviar reporte</Text>
+                    </TouchableOpacity>
+                    <StatusBar barStyle={'light-content'} />
+                    </View>
+                )}
+            </View>
+        </KeyboardAwareScrollView>
+    );
+};
 
 const styles = StyleSheet.create({
+    image: {
+        width: '100%',
+        height: '100%',
+        marginBottom: 20,
+        position: 'absolute',
+    },
     container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        flexGrow: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    logoContainer: {
+        marginTop: 40,
+        marginBottom: 15,
+        justifyContent: "center",
+    },
+    logo: {
+        color: "#61dafb",
+        
+    },
+    inputContainer: {
+        justifyContent: "center"
+    },
+    inputWrapper: {
+        marginBottom: 20,
 
     },
-    scrollview: {
-        flex: 1,
+    label: {
+        fontSize: 16,
+        fontWeight: "semibold",
+        marginBottom: 5,
+        color: '#fff',
+
+    },
+    input: {
+        borderColor: "#ccc",
+        borderWidth: 0.5,
+        borderRadius: 10,
+        padding: 10,
+        fontSize: 16,
+        marginBottom: 5,
+        color: '#EFEFEF',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 1,
+        width: 300,
+
+    },
+    picker: {
+        borderColor: "#ccc",
+        borderWidth: 0.5,
+        borderRadius: 10,
+        marginBottom: 20,
+        height: 50,
+    },
+    pickerItem:{
+        color:"white"
+    },
+    textArea: {
+        borderColor: "#ccc",
+        borderWidth: 1,
+        borderRadius: 5,
+        padding: 10,
+        fontSize: 16,
+        textAlignVertical: "top",
+        height: 100,
+        color:"#EFEFEF"
+    },
+    buttonContainer: {
+
+        width: 400,
+        height: 100,
+        alignItems: 'center',
+        justifyContent: 'center',
 
     },
     button: {
@@ -202,164 +274,14 @@ const styles = StyleSheet.create({
         backgroundColor: "transparent",
         borderColor: "white",
         borderRadius: 10,
-        borderWidth: 1
-    },
-    title: {
-        textAlign: 'center',
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginVertical: 10,
-        color: '#121732',
-        top: 40
-    },
-    reporte: {
-        backgroundColor: 'transparent',
-        width: 300,
-        height: 90,
-        justifyContent: 'center',
         borderWidth: 1,
-        top: 250,
-        borderRadius: 10,
-    },
-    area: {
-        width: 400,
-        height: 200,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#121732',
-        top: 280,
-    },
-    picker: {
-        width: 150,
-        height: 50,
-        right: 30,
-        top: 400,
-        backgroundColor: '#D9D9D9',
-        borderRadius: 10,
-        position: 'absolute',
-    },
-    marca: {
-        width: 150,
-        height: 50,
-        top: 150,
-        left: 30,
-        backgroundColor: '#D9D9D9',
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    marca2: {
-        width: 150,
-        height: 50,
-        top: 150,
-        right: 30,
-        backgroundColor: 'white',
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    Procesador: {
-        width: 150,
-        height: 50,
-        top: 200,
-        left: 30,
-        backgroundColor: 'white',
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    Procesador2: {
-        width: 150,
-        height: 50,
-        top: 200,
-        right: 30,
-        backgroundColor: '#D9D9D9',
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    docente: {
-        width: 150,
-        height: 50,
-        top: 400,
-        left: 30,
-        backgroundColor: 'white',
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    Ubicacion: {
-        width: 150,
-        height: 50,
-        top: 250,
-        left: 30,
-        backgroundColor: '#D9D9D9',
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    Ubicacion2: {
-        width: 150,
-        height: 50,
-        top: 250,
-        right: 30,
-        backgroundColor: 'white',
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    Horario: {
-        width: 150,
-        height: 50,
-        top: 300,
-        left: 30,
-        backgroundColor: 'white',
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    Horario2: {
-        width: 150,
-        height: 50,
-        top: 300,
-        right: 30,
-        backgroundColor: '#D9D9D9',
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    HorarioF: {
-        width: 150,
-        height: 50,
-        top: 350,
-        left: 30,
-        backgroundColor: '#D9D9D9',
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    Horario2F: {
-        width: 150,
-        height: 50,
-        top: 350,
-        right: 30,
-        backgroundColor: 'white',
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
+        top: 15,
     },
     buttonText: {
-        color: '#fff',
+        color: "#fff",
         fontSize: 16,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        top: 10,
+        fontWeight: "bold",
     },
-    computer: {
-        width: 100,
-        height: 100,
-        top: 50,
-        left: 30,
-        position: 'absolute',
-    },
-})
+});

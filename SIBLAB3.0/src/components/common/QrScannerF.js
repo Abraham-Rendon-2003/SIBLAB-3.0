@@ -1,25 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { StyleSheet, Text, View, Button, TouchableOpacity, ImageBackground } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useNavigation } from '@react-navigation/native';
 
-export default function QrScannerF({route}) {
-  const {now} = route.params;
+export default function QrScannerF({ route }) {
+  const { now } = route.params;
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [text, setText] = useState('');
-  const [computer, setComputer] = useState("");
   const navigation = useNavigation();
   const [fechaInicio, setFechaInicio] = useState(null);
   const [fechaF, setFechaF] = useState(null);
   const [segundoEscaneoRealizado, setSegundoEscaneoRealizado] = useState(false);
-
-
   const askForCameraPermission = async () => {
     const { status } = await BarCodeScanner.requestPermissionsAsync();
     setHasPermission(status === 'granted');
   };
-
   useEffect(() => {
     askForCameraPermission();
   }, []);
@@ -42,6 +38,7 @@ export default function QrScannerF({route}) {
     if (fechaInicio && !segundoEscaneoRealizado) {
       setFechaF(now1);
       setSegundoEscaneoRealizado(false);
+      setScanned(false);
     } else {
       setFechaInicio(now);
     }
@@ -49,7 +46,11 @@ export default function QrScannerF({route}) {
     navigation.navigate('reports', { data, now, now1 });
   };
 
-
+  const resetScan = () => {
+    setScanned(false);
+    setFechaInicio("")
+    setFechaF("")
+  };
   if (hasPermission === null) {
     return (
       <View style={styles.container}>
@@ -66,13 +67,13 @@ export default function QrScannerF({route}) {
         <Text style={styles.mainText}>{text}</Text>
         {scanned && (
           <Button
-          title={'Escanear nuevamente'}
-          onPress={() => {
-            setScanned(false);
-            setSegundoEscaneoRealizado(false);
-          }}
-          color='tomato'
-        />
+            title={'Escanear nuevamente'}
+            onPress={() => {
+              setScanned(false);
+              setSegundoEscaneoRealizado(false);
+            }}
+            color='tomato'
+          />
         )}
       </View>
     );
@@ -80,14 +81,19 @@ export default function QrScannerF({route}) {
 
 
   return (
-    <View>
-      <View style={styles.barcodebox}>
-        <BarCodeScanner
+    <View style={styles.barcodebox}>
+      <ImageBackground source={require('../../assets/img/fondo.png')} resizeMode="cover" style={styles.image}></ImageBackground>
 
+      {scanned ? (
+        <TouchableOpacity style={styles.button} onPress={resetScan}>
+          <Text style={styles.text}>Escanea tu hora final</Text>
+        </TouchableOpacity>
+      ) : (
+        <BarCodeScanner
           onBarCodeScanned={scanned ? undefined : handleBarCodeScanner}
           style={{ height: 350, width: 350 }}
         />
-      </View>
+      )}
     </View>
   );
 }
@@ -95,17 +101,42 @@ export default function QrScannerF({route}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
+  image: {
+    width: '100%',
+    height: '100%',
+    marginBottom: 20,
+    position: 'absolute',
+  },
   barcodebox: {
+    flex:1,
     alignItems: "center",
     justifyContent: "center",
-    top:150
   },
   mainText: {
     fontSize: 16,
     margin: 20,
+  },
+  button: {
+    backgroundColor: '#0B3C5D',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+    shadowOffset: { width: 2, height: 2 },
+    shadowColor: '#333',
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+  },
+
+  text: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
 });

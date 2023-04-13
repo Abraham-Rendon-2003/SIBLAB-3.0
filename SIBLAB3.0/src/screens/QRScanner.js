@@ -1,12 +1,11 @@
 import React from 'react';
-import {Button, StyleSheet, Text, View} from 'react-native'
-import {useNavigation} from "@react-navigation/native";
+import { ImageBackground, StyleSheet, View } from 'react-native'
 import QRScannerI from "../components/common/QRScannerI";
 
 export default function QRScanner() {
-    const navigation = useNavigation();
     return (
         <View style={styles.container}>
+            <ImageBackground source={require('../assets/img/fondo.png')} resizeMode="cover" style={styles.image}></ImageBackground>
             <QRScannerI />
         </View>
     )
@@ -15,8 +14,13 @@ export default function QRScanner() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
         alignItems: 'center',
         justifyContent: 'center',
-    }
+    },
+    image: {
+        width: '100%',
+        height: '100%',
+        marginBottom: 20,
+        position: 'absolute',
+    },
 })
