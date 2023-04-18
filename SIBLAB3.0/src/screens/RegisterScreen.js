@@ -35,7 +35,7 @@ export default function RegisterScreen() {
 
   const fillSemesters = async () => {
     try {
-        const response = await axios.get("http:// 192.168.137.11:8080/api-siblab/semester/" ,{
+        const response = await axios.get("http://192.168.1.74:8080/api-siblab/semester/" ,{
           Withcredentials: true,
       });
         const data = response.data.data;
@@ -53,7 +53,7 @@ export default function RegisterScreen() {
 
 const fillGroups = async (current = null) => {
     try {
-        const response = await axios.get("http:// 192.168.137.11:8080/api-siblab/classroom/", {
+        const response = await axios.get("http://192.168.1.74:8080/api-siblab/classroom/", {
           Withcredentials: true,
       });
         const data = response.data.data;

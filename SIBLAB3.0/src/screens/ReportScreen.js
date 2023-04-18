@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, StatusBar } from 'react-native'
 import { Picker } from '@react-native-picker/picker';
 import { useFormik } from "formik";
-import { Icon } from "react-native-elements";
+import { Icon, Image } from "react-native-elements";
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { CreateReport } from "../services/GeneralService";
@@ -18,13 +18,15 @@ export default function ReportScreen({ route }) {
     const navigation = useNavigation();
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(false)
+    const [imageUri, setImageUri] = useState('');
+
     const SegundoEscaneo = () => {
         navigation.navigate('scannerF', { now: now });
     }
 
     const selectTeacher = async () => {
         try {
-            const response = await axios.get('http://192.168.137.11:8080/api-siblab/user/', {
+            const response = await axios.get('http://192.168.1.74:8080/api-siblab/user/', {
                 withCredentials: true,
             });
             const docenteFiltro = response.data.data;
@@ -38,8 +40,10 @@ export default function ReportScreen({ route }) {
     useEffect(() => {
         const getComputer = async () => {
             try {
-                const response = await axios.get(`http://192.168.137.11:8080/api-siblab/machine/${data}`, { withCredentials: true })
-                response.data.data.status === true ? setComputer(response.data.data) : navigation.goBack() || Toast.show({type:"error", position:"bottom",text1:"La computadora se encuentra desabilitada",text2:"Por favor usa una diferente!"})
+                const response = await axios.get(`http://192.168.1.74:8080/api-siblab/machine/${data}`, { withCredentials: true })
+                const imageUrl = response.data.data.path_image;  
+                              setImageUri(imageUrl);
+                response.data.data.status === true ? setComputer(response.data.data) : navigation.goBack() || Toast.show({ type: "error", position: "bottom", text1: "La computadora se encuentra desabilitada", text2: "Por favor usa una diferente!" })
 
             } catch (error) {
             }
@@ -72,8 +76,8 @@ export default function ReportScreen({ route }) {
         onSubmit: async (values) => {
             console.log("values report", values)
             const response = await CreateReport({ values, data, userData, now1 })
-            response.data.message === "Ok" ? Toast.show({type:"success",position:"bottom",text1:"Registrado correctamente"}): Toast.show({type:"error",position:"bottom",text1:"Error al crear el reporte"})
-            navigation.navigate('indexS',values);
+            response.data.message === "Ok" ? Toast.show({ type: "success", position: "bottom", text1: "Registrado correctamente" }) : Toast.show({ type: "error", position: "bottom", text1: "Error al crear el reporte" })
+            navigation.navigate('indexS', values);
         }
     });
 
@@ -87,13 +91,14 @@ export default function ReportScreen({ route }) {
         <KeyboardAwareScrollView contentContainerStyle={styles.container}>
             <ImageBackground source={require('../assets/img/fondo.png')} resizeMode="cover" style={styles.image}></ImageBackground>
 
-            <View style={styles.logoContainer}>
-                <Icon type="material-comunity" name="laptop" size={150} style={styles.logo} color="white"  />
-            </View>
+                <Image
+                    source={{ uri: `http://192.168.1.74:8080/api-siblab/image/${computer.id}` }}
+                    style={{ width: 150, height: 150,marginTop:29,marginBottom:15 }}
+                />            
             <View style={styles.inputContainer}>
                 <View style={styles.inputWrapper}>
                     <Text style={styles.label}>Nombre</Text>
-                    <TextInput style={styles.input} placeholder={computer.name} editable={false} value={computer.name && computer.name}/>
+                    <TextInput style={styles.input} placeholder={computer.name} editable={false} value={computer.name && computer.name} />
                 </View>
                 <View style={styles.inputWrapper}>
                     <Text style={styles.label}>Marca</Text>
@@ -101,7 +106,7 @@ export default function ReportScreen({ route }) {
                 </View>
                 <View style={styles.inputWrapper}>
                     <Text style={styles.label}>Ubicación</Text>
-                    <TextInput style={styles.input} placeholder={computer.laboratory && computer.laboratory.name} editable={false} value={computer.laboratory &&computer.laboratory.name} />
+                    <TextInput style={styles.input} placeholder={computer.laboratory && computer.laboratory.name} editable={false} value={computer.laboratory && computer.laboratory.name} />
                 </View>
                 <View style={styles.inputWrapper}>
                     <Text style={styles.label}>Horario Inicio</Text>
@@ -131,7 +136,7 @@ export default function ReportScreen({ route }) {
                 <Text style={styles.label}>Docente</Text>
                 <View style={styles.picker}>
                     <Picker
-                        style={styles.pickerItem} 
+                        style={styles.pickerItem}
                         onValueChange={(itemValue) => {
                             formik.setFieldValue("id_teacher", itemValue);
                             console.log(formik.values.id_teacher);
@@ -142,7 +147,7 @@ export default function ReportScreen({ route }) {
                     >
                         {teachers.map((teacher) => {
                             return (
-                                <Picker.Item label={teacher.name +" " + teacher.surname} value={teacher.id} key={teacher.id} />
+                                <Picker.Item label={teacher.name + " " + teacher.surname} value={teacher.id} key={teacher.id} />
                             )
                         })}
                     </Picker>
@@ -151,7 +156,7 @@ export default function ReportScreen({ route }) {
                 <View style={styles.inputWrapper}>
                     <Text style={styles.label}>Comentarios</Text>
                     <TextInput
-                            editable
+                        editable
                         multiline
                         numberOfLines={6}
                         maxLength={100}
@@ -166,17 +171,17 @@ export default function ReportScreen({ route }) {
             <View style={styles.buttonContainer}>
                 {showScanButton ? (
                     <View>
-                    <TouchableOpacity onPress={SegundoEscaneo} style={styles.button}>
-                        <Text style={styles.buttonText}>Escanear salida</Text>
-                    </TouchableOpacity>
-                    <StatusBar barStyle={'light-content'} />
+                        <TouchableOpacity onPress={SegundoEscaneo} style={styles.button}>
+                            <Text style={styles.buttonText}>Escanear salida</Text>
+                        </TouchableOpacity>
+                        <StatusBar barStyle={'light-content'} />
                     </View>
                 ) : (
                     <View>
-                    <TouchableOpacity onPress={formik.handleSubmit} style={styles.button}>
-                        <Text style={styles.buttonText}>Enviar reporte</Text>
-                    </TouchableOpacity>
-                    <StatusBar barStyle={'light-content'} />
+                        <TouchableOpacity onPress={formik.handleSubmit} style={styles.button}>
+                            <Text style={styles.buttonText}>Enviar reporte</Text>
+                        </TouchableOpacity>
+                        <StatusBar barStyle={'light-content'} />
                     </View>
                 )}
             </View>
@@ -203,7 +208,7 @@ const styles = StyleSheet.create({
     },
     logo: {
         color: "#61dafb",
-        
+
     },
     inputContainer: {
         justifyContent: "center"
@@ -244,8 +249,8 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         height: 50,
     },
-    pickerItem:{
-        color:"white"
+    pickerItem: {
+        color: "white"
     },
     textArea: {
         borderColor: "#ccc",
@@ -255,7 +260,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlignVertical: "top",
         height: 100,
-        color:"#EFEFEF"
+        color: "#EFEFEF"
     },
     buttonContainer: {
 
